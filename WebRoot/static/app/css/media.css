@@ -1,0 +1,53 @@
+@charset "utf-8";
+@media (max-width:768px){	
+	html{font-size : 18px;}
+	.c-con,.header,.footer,.dk-header,.float,.center-header,.forum > .scrolltop2{ width:100%;}		
+	.header,.footer,.dk-header,.float,.center-header,.forum > .scrolltop2{ left:0; margin-left:0;}
+	
+}
+
+@media (max-width:640px){
+	html{font-size : 16px;}
+	.dangke > .dklist > ul > li > .dkl-about > h3{  height:2.4rem; line-height:2.4rem; }
+	.dangke > .dklist > ul > li > .dkl-about > p{ height:3.2rem; line-height:1.6rem;  }
+	
+	.xianfeng > .xflist > ul > li > .xfl-about > h4{ margin-bottom:0.2rem;}
+	.center-user > .cu-about{ margin-top:-3.2rem;}
+}
+
+@media (max-width:480px){
+	
+	html{font-size : 14px;}
+	.notic > h3,.chuangyou > .cy-form > .cyf-form > .cyf-form-input > input{ font-size:1rem;}
+	.active > .active-list > ul > li > .al-img{ width:64px;}
+	.active > .active-list > ul > li > .al-about > h3{ height:2.4rem; line-height:2.4rem; font-size:1.2rem;}
+	.active > .active-list > ul > li > .al-about > p{ height:1.4rem; line-height:1.4rem; font-size:1rem;}
+	
+	.kaoshi-about > .ksa-header{ font-size:1.6rem;}
+	.ksa-list > ul > li{ width:50%; height:auto; padding:1.5rem 1rem;}
+	.ksa-list > ul > li > .kl-about > h3,.qydj > .qydj-item > ul > li > .qydj-item-about > h3,.dangyuan > .dy-tab > ul > li > p,.dangyuan > .dyjf-cont > .dyjf-form > ul > li > .dyjf-form-item > h3{ font-size:1.1rem;}
+	.ksa-list > ul > li > .kl-about > p,.qydj > .qydj-item > ul > li > .qydj-item-about > p,.dangyuan > .dyjf-cont > .dyjf-form > ul > li > .dyjf-form-item > p,.dangyuan > .dyjf-cont > .dyjf-form > ul > li > .dyjf-form-item > p > input{ font-size:1rem;}
+	.ksa-chengji > .ksa-cj-about{ width:16rem;}
+	
+	.ksa-chengji > .ksa-cj-about > p{ width:100%; height:5rem; line-height:5rem; font-size:4rem;  top:3rem;}
+	.ksa-chengji > .ksa-cj-about > h3{ width:100%; height:3.5rem; line-height:3.5rem; font-size:1.2rem;  top:8rem;}
+	.ksa-tip{ width:100%; font-size:1.2rem; text-align:center; line-height:2rem;}
+	
+	.dangke > .dklist > ul > li > .dkl-img,.xianfeng > .xflist > ul > li > .xfl-img,.dangyuan > .dy-item > .dylist > ul > li > .dyl-img{ width:120px;height:80px; }
+	.dk-form > .forms > .forms-icon{ width:80px;}
+	
+	.forum > .forum-tab > ul > li > p{ font-size:1rem;}
+	.center-user > .cu-about{ top:auto; bottom:1rem; margin-top:0;}
+	
+	/*.logo{ width:8rem; height:4rem; margin-top:-2rem; margin-left:-4rem;}*/
+	
+}
+@media (max-width:375px){
+	html{font-size : 12px;}
+	.active > .active-list > ul > li > .al-about > h3{ height:2.0rem; line-height:2.0rem; font-size:1.16rem;}
+	.active > .active-list > ul > li > .al-about > p{ height:1.2rem; line-height:1.2rem; font-size:1rem;}
+	
+	.dangke > .dklist > ul > li > .dkl-img,.xianfeng > .xflist > ul > li > .xfl-img,.dangyuan > .dy-item > .dylist > ul > li > .dyl-img{ width:100px; }
+	
+	.dk-form > .forms > .forms-input > h3{ line-height:1.6rem;}
+}

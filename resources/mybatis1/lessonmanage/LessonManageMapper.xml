@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="LessonManageMapper">
+	
+	<select id="getInformationManageList" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.title,
+			a.introduction,
+			a.cover,
+			a.rec_id,
+			#{user.USER_ID} login_id,
+			a.rec_id &lt;=&gt; #{user.USER_ID} is_edit,
+			DATE_FORMAT(a.rec_date,'%Y-%m-%d') rec_date,
+			b.username,
+			c.title type_name
+		from
+			t_lesson_info a 
+			left join sys_user b on
+			a.rec_id = b.user_id
+			left join t_lesson_type_info c on
+			a.lesson_type = c.id
+		where
+			1 = 1
+		<if test="title != null and title != ''">
+		 	and a.title like concat('%', #{title}, '%')
+		 </if>
+		 <if test="type != null and type != ''">
+		 	and a.lesson_type = #{type}
+		 </if>
+		order by a.order_num, a.rec_date desc
+	</select>
+	
+	<select id="getLessonTypeList" parameterType="pd" resultType="pd">
+		select a.id, a.title from t_lesson_type_info a order by a.order_num, rec_date desc
+	</select>
+	
+	<select id="getLAreaList" parameterType="pd" resultType="pd">
+		select
+			a.org_id,
+			a.org_name 
+		from
+			t_organization a 
+		where
+			a.org_lev = 4 
+			and a.status = 1 
+		order by
+			a.record_date desc
+	</select>
+	
+	<select id="getOrgList" parameterType="pd" resultType="pd">
+		select
+			a.org_id,
+			a.org_name,
+			a.address,
+			a.area_id
+		from
+			t_organization a 
+		where
+			a.org_lev = 5
+			and a.status = 1 
+		<if test="area_id != null and area_id != ''">
+			and a.area_id = #{area_id}
+		</if>
+		<if test="org_name != null and org_name != ''">
+			and a.org_name like concat('%', #{org_name}, '%')
+		</if>
+		order by
+			a.record_date desc
+	</select>
+	
+	<select id="getJpushPids" parameterType="pd" resultType="pd">
+		<choose>
+			<when test="type == 1">
+				select
+					a.user_id, a.registration_id
+				from
+					sys_user a,
+					t_organization b
+				where
+					CONCAT( a.ORG_ID, '' ) = CONCAT( b.org_id, '' )
+				and b.industry = #{target_id1}
+			</when>
+			<when test="type == 2">
+				select
+					GROUP_CONCAT(a.registration_id)  registration_ids
+				from
+					sys_user a,
+					t_organization b 
+				where
+					CONCAT( a.ORG_ID, '' ) = CONCAT( b.org_id, '' ) 
+					and b.area_id = #{target_id2}
+			</when>
+			<when test="type == 3">
+				select
+					GROUP_CONCAT(a.registration_id)  registration_ids
+				from
+					sys_user a 
+				where
+					a.ORG_ID = #{org_id}
+			</when>
+			<otherwise>
+				
+			</otherwise>
+		</choose>	
+	</select>
+	
+	<insert id="saveInformation" parameterType="pd">
+		insert into t_lesson_info ( title, introduction, cover, content, type, lesson_type, video_id,
+		<if test="order_num != null and order_num != ''">
+			order_num, 
+		</if>
+		target_id, area_id, org_id, video_name, video, expert_id, rec_id, rec_date
+		<if test="type == 3">
+			, is_public 
+		</if>
+		)
+		values
+			( #{title}, #{introduction}, #{cover}, #{content}, #{type}, #{lesson_type}, #{video_id},
+			<if test="order_num != null and order_num != ''">
+				#{order_num}, 
+			</if>
+			<choose>
+				<when test="type == 1">
+					#{target_id1},
+				</when>
+				<when test="type == 2">
+					#{target_id2},
+				</when>
+				<otherwise>
+					#{target_id3},
+				</otherwise>
+			</choose>	
+			<choose>
+				<when test="type == 2">
+					#{target_id2},
+				</when>
+				<otherwise>
+					#{area_id},
+				</otherwise>
+			</choose>	
+			#{org_id}, #{video_name}, #{video}, #{expert_id}, #{user.USER_ID}, SYSDATE( ) 
+			<if test="type == 3">
+				, #{is_public}
+			</if>
+			 )
+	</insert>
+	
+	<select id="getInformationMap" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.title,
+			a.introduction,
+			a.cover,
+			a.content,
+			a.type,
+			a.lesson_type,
+			( case a.order_num when 1000 then null else a.order_num end ) order_num,
+			a.target_id, 
+			a.area_id, 
+			a.org_id,
+			a.is_public,
+			a.video_id,
+			a.video_name,
+			a.video,
+			a.expert_id,
+			b.org_name,
+			c.dd_item_name target_id_name 
+		from
+			t_lesson_info a
+			left join t_organization b on b.org_lev = 5 
+			and a.target_id = b.org_id
+			left join t_ddw c on a.type = 1 
+			and a.target_id = c.dd_item_code 
+			and c.data_type_code = 1001
+		where a.id = #{id}
+	</select>
+	
+	<update id="updateInformation" parameterType="pd" >
+		update t_lesson_info a
+		set a.title = #{title},
+			a.introduction = #{introduction},
+			a.cover = #{cover},
+			a.content = #{content},
+			a.type = #{type}, 
+			a.lesson_type = #{lesson_type},
+			<choose>
+				<when test="order_num != null and order_num != ''">
+					a.order_num = #{order_num},
+				</when>
+				<otherwise>
+					a.order_num = 1000,
+				</otherwise>
+			</choose>	
+			<choose>
+				<when test="type == 1">
+					a.target_id = #{target_id1},
+				</when>
+				<when test="type == 2">
+					a.target_id = #{target_id2},
+				</when>
+				<otherwise>
+					a.target_id = #{target_id3},
+				</otherwise>
+			</choose>	
+			<choose>
+				<when test="type == 2">
+					a.area_id = #{target_id2},
+				</when>
+				<otherwise>
+					a.area_id = #{area_id},
+				</otherwise>
+			</choose>	
+			a.org_id = #{org_id},
+			a.is_public = #{is_public}, 
+			a.video_id = #{video_id},
+			a.video_name = #{video_name},
+			a.video = #{video},
+			a.expert_id = #{expert_id},
+			a.update_id = #{user.USER_ID},
+			a.update_date = SYSDATE()
+		where a.id = #{info_id}
+	</update>
+	
+	<insert id="saveInformationHis" parameterType="pd">
+		insert into t_lesson_info_his (
+			id,
+			title,
+			introduction,
+			cover,
+			content,
+			type,
+			lesson_type,
+			order_num,
+			target_id,
+			area_id,
+			org_id,
+			is_public,
+			video_name,
+			video,
+			expert_id,
+			rec_id,
+			rec_date,
+			update_id,
+			update_date,
+			del_id,
+			del_date 
+		) select
+				id,
+				title,
+				introduction,
+				cover,
+				content,
+				type,
+				lesson_type,
+				order_num,
+				target_id,
+				area_id,
+				org_id,
+				is_public,
+				video_name,
+				video,
+				expert_id,
+				rec_id,
+				rec_date,
+				update_id,
+				update_date,
+				#{user.USER_ID},
+				SYSDATE( ) 
+		from
+			t_lesson_info 
+		where
+			id = #{id};
+		
+		delete from t_lesson_info where id = #{id}
+	</insert>
+	
+	<select id="getUpHy" parameterType="pd" resultType="pd">
+		select
+			a.lesson_type,
+			b.dd_item_name param_name 
+		from
+			t_lesson_type_info a,
+			t_ddw b 
+		where
+			a.lesson_type = b.dd_item_code 
+			and b.data_type_code = 1001
+			and a.id = #{lesson_type}
+	</select>
+	
+	
+</mapper>

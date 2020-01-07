@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MobileInformationController">
+	
+	<select id="getBannerList" parameterType="pd" resultType="pd">
+		select
+			a.id banner_id,
+			a.cover,
+			a.title,
+			a.order_num,
+			a.read_num,
+			IFNULL( b.NAME, '安全平台' ) name,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+		from
+			t_infomation_home_info a 
+			left join sys_user b on a.rec_id = b.user_id 
+		order by
+			a.order_num, a.rec_date desc
+	</select>
+	
+	<update id="updateBannerReadNum" parameterType="pd" >
+		update t_infomation_home_info 
+		set read_num = IFNULL(read_num,0) + 1 
+		where
+			id = #{banner_id}
+	</update>
+	
+	<select id="getBannerInfo" parameterType="pd" resultType="pd">
+		select a.id info_id,
+			a.title,
+			a.content,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date,
+			IFNULL( b.NAME, '安全平台' ) name
+		from
+			t_infomation_home_info a 
+			left join sys_user b on a.rec_id = b.user_id 
+		where
+			a.id = #{banner_id}
+	</select>
+	
+	<select id="getLawList" parameterType="pd" resultType="pd">
+		select
+			a.id law_id,
+			a.title,
+			a.order_num,
+			a.read_num,
+			IFNULL( b.NAME, '安全平台' ) name,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+		from
+			t_infomation_law_info a
+			left join sys_user b on a.rec_id = b.user_id 
+		order by
+			a.order_num,
+			a.rec_date desc
+	</select>
+	
+	<update id="updateLawReadNum" parameterType="pd" >
+		update t_infomation_law_info 
+		set read_num = IFNULL(read_num,0) + 1
+		where
+			id = #{law_id}
+	</update>
+	
+	<select id="getLawInfo" parameterType="pd" resultType="pd">
+		select a.id info_id,
+			a.title,
+			a.content,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date,
+			IFNULL( b.NAME, '安全平台' ) name
+		from
+			t_infomation_law_info a 
+			left join sys_user b on a.rec_id = b.user_id 
+		where
+			a.id = #{law_id}
+	</select>
+	
+	<select id="getAccidentList" parameterType="pd" resultType="pd">
+		select
+			a.id accident_id,
+			a.title,
+			a.order_num,
+			a.cover,
+			a.read_num,
+			IFNULL( b.NAME, '安全平台' ) name,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+		from
+			t_infomation_accident_info a
+			left join sys_user b on a.rec_id = b.user_id 
+		order by
+			a.order_num,
+			a.rec_date desc
+	</select>
+	
+	<update id="updateAccidentReadNum" parameterType="pd" >
+		update t_infomation_accident_info a 
+		set a.read_num = IFNULL(read_num,0) + 1 
+		where
+			a.id = #{accident_id}
+	</update>
+	
+	<select id="getAccidentInfo" parameterType="pd" resultType="pd">
+		select a.id info_id,
+			a.title,
+			a.content,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date,
+			IFNULL( b.NAME, '安全平台' ) name,
+			a.video 
+		from
+			t_infomation_accident_info a
+			left join sys_user b on a.rec_id = b.user_id 
+		where
+			a.id = #{accident_id}
+	</select>
+	
+	<select id="getSafeList" parameterType="pd" resultType="pd">
+		select
+			a.id safe_id,
+			a.title,
+			a.order_num,
+			a.cover,
+			a.read_num,
+			IFNULL( b.NAME, '安全平台' ) name,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+		from
+			t_infomation_safe_info a
+			left join sys_user b on a.rec_id = b.user_id 
+		order by
+			a.order_num,
+			a.rec_date desc
+	</select>
+	
+	<update id="updateSafeReadNum" parameterType="pd" >
+		update t_infomation_safe_info a 
+		set a.read_num = IFNULL(read_num,0) + 1 
+		where
+			a.id = #{safe_id}
+	</update>
+	
+	
+	<select id="getSafeInfo" parameterType="pd" resultType="pd">
+		select a.id info_id,
+			a.title,
+			a.content,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date,
+			IFNULL( b.NAME, '安全平台' ) name
+		from
+			t_infomation_safe_info a
+			left join sys_user b on a.rec_id = b.user_id 
+		where
+			a.id = #{safe_id}
+	</select>
+	
+	<select id="getSearchInfoList" parameterType="pd" resultType="pd">
+		select * from (
+			select
+				a.id info_id,
+				'accident' type,
+				a.title,
+				a.order_num,
+				a.cover,
+				a.read_num,
+				IFNULL( b.NAME, '安全平台' ) name,
+				DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+			from
+				t_infomation_accident_info a
+				left join sys_user b on a.rec_id = b.user_id
+			where a.title like CONCAT('%', #{title}, '%')
+			union all
+			select
+				a.id info_id,
+				'home' type,
+				a.title,
+				a.order_num,
+				a.cover,
+				a.read_num,
+				IFNULL( b.NAME, '安全平台' ) name,
+				DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+			from
+				t_infomation_home_info a
+				left join sys_user b on a.rec_id = b.user_id
+			where a.title like CONCAT('%', #{title}, '%')
+			union all
+			select
+				a.id info_id,
+				'safe' type,
+				a.title,
+				a.order_num,
+				a.cover,
+				a.read_num,
+				IFNULL( b.NAME, '安全平台' ) name,
+				DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+			from
+				t_infomation_safe_info a
+				left join sys_user b on a.rec_id = b.user_id
+			where a.title like CONCAT('%', #{title}, '%')
+			union all
+			select
+				a.id info_id,
+				'law' type,
+				a.title,
+				a.order_num,
+				'' cover,
+				a.read_num,
+				IFNULL( b.NAME, '安全平台' ) name,
+				DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+			from
+				t_infomation_law_info a
+				left join sys_user b on a.rec_id = b.user_id
+			where a.title like CONCAT('%', #{title}, '%')
+			) as aa 
+			<if test="title == null or title == '' ">
+				where 1 = 2
+			</if>
+			order by aa.rec_date desc
+	</select>
+	
+	<update id="updateInfoReadNum" parameterType="pd" >
+		update 
+		<choose>
+			<when test="type == 'accident'">
+				 t_infomation_accident_info a
+			</when>
+			<when test="type == 'home'">
+				 t_infomation_home_info a
+			</when>
+			<when test="type == 'safe'">
+				 t_infomation_safe_info a
+			</when>
+			<when test="type == 'law'">
+				 t_infomation_law_info a
+			</when>
+		</choose>	
+		set a.read_num = IFNULL(read_num,0) + 1 
+		where
+			a.id = #{info_id}
+	</update>
+	
+	<select id="getInfo" parameterType="pd" resultType="pd">
+		select a.id info_id,
+			a.title,
+			a.content,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date,
+			IFNULL( b.NAME, '安全平台' ) name
+		<choose>
+			<when test="type == 'accident'">
+				, a.video
+				from t_infomation_accident_info a
+			</when>
+			<when test="type == 'home'">
+				, '' video
+				from t_infomation_home_info a
+			</when>
+			<when test="type == 'safe'">
+				, '' video
+				from t_infomation_safe_info a
+			</when>
+			<when test="type == 'law'">
+				, '' video
+				from t_infomation_law_info a
+			</when>
+		</choose>	
+			left join sys_user b on a.rec_id = b.user_id 
+		where
+			a.id = #{info_id}
+	</select>
+	
+	<select id="getMyPonitInfo" parameterType="pd" resultType="pd">
+		SELECT
+			ifnull(sum( point ), 0 ) total_point,
+			ifnull(sum( case when info_id = #{info_id} then 1 else 0 end ), 0) flag_exists,
+			#{type} type
+		FROM
+			t_my_points 
+		WHERE
+			bill_day = DATE_FORMAT( SYSDATE( ), '%Y%m%d' ) 
+			AND user_id = #{user.USER_ID}
+			and type = #{type}
+	</select>
+	
+	<insert id="savePonit" parameterType="pd">
+		insert into t_my_points ( id, user_id, org_id, type, point, info_id, bill_day, bill_week, record_date )
+		values
+			(
+				#{id},
+				#{user.USER_ID},
+				#{user.org_id},
+				#{type},
+				#{point},
+				#{info_id},
+				DATE_FORMAT( SYSDATE( ), '%Y%m%d' ),
+				date_format( curdate( ), '%w' ),
+				SYSDATE( ) 
+			)
+	</insert>
+	
+	<select id="getMyInfo" parameterType="pd" resultType="pd">
+		select
+			a.name,
+			ifnull(a.head_img, 'https://lnys.oss-cn-shanghai.aliyuncs.com/man.png') head_img,
+			ifnull(a.station, '个人简介') station,
+			ifnull(b.org_detail, '企业介绍') org_detail
+		from
+			sys_user a,
+			t_organization b 
+		where
+			CONCAT( a.ORG_ID, '' ) = CONCAT( b.org_id, '' )
+		and a.USER_ID = #{user.USER_ID} 
+	</select>
+	
+	<select id="getMyLessonsList" parameterType="pd" resultType="pd">
+		select
+			a.id lesson_id,
+			a.title,
+			a.cover,
+			a.video,
+			ifnull(b.name, '安全平台') name,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+		from
+			t_lesson_info a
+			left join sys_user b on a.rec_id = b.USER_ID,
+			t_lesson_type_info c 
+		where
+			a.lesson_type = c.id
+			<choose>
+				<when test="user.org_lev == 0 ">
+					and 1 = 1
+				</when>
+				<when test="user.org_lev == 3 ">
+					and a.is_public = 1
+				</when>
+				<when test="user.org_lev == 4 ">
+					and (a.area_id = #{user.area_id}  or c.lesson_type = 100100 )
+					and a.is_public = 1
+				</when>
+				<when test="user.org_lev == 5 ">
+					and ( a.org_id = #{user.org_id} or c.lesson_type = 100100 or c.lesson_type = #{user.industry} ) 
+				</when>
+			</choose>
+		order by
+			a.order_num,
+			a.rec_date desc
+	</select>
+	
+	<select id="getMyLessonsDetail" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.introduction,
+			a.video,
+			a.title,
+			a.content,
+			b.name expert_name,
+			b.introduce expert_introduce,
+			b.content expert_content,
+			b.photo 
+		from
+			t_lesson_info a
+			left join t_expert_info b on a.expert_id = b.id 
+		where
+			1 = 1
+		and a.id = #{lesson_id}
+	</select>
+	
+	<insert id="subProposal" parameterType="pd">
+		insert into t_proposal_info ( content, rec_id, rec_date )
+		values
+			( #{content}, #{user.USER_ID}, SYSDATE( ) )
+	</insert>
+	
+	<select id="getMyCertificateInfo" parameterType="pd" resultType="pd">
+		select
+			ifnull( a.certificate_num, '' ) certificate_num,
+			ifnull( DATE_FORMAT( a.certificate_end_date, '%Y-%m-%d' ), '' ) certificate_end_date,
+			ifnull( a.certificate_img_url, '' ) certificate_img_url,
+			ifnull( a.certificate_name, '' ) certificate_name,
+			ifnull( DATE_FORMAT( a.certificate_begain_date, '%Y-%m-%d' ), '' ) certificate_begain_date 
+		from
+			sys_user a
+		where
+			a.USER_ID = #{user.USER_ID}
+	</select>
+	
+	<select id="getMyMessageList" parameterType="pd" resultType="pd">
+		select
+			ifnull( a.title, '' ) title,
+			ifnull( a.content, '' ) content,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date 
+		from
+			t_push_log_info a 
+		where
+			a.user_id = #{user.USER_ID} 
+		order by
+			a.rec_date desc
+	</select>
+	
+	<select id="getPhoneList" parameterType="pd" resultType="pd">
+		select
+			a.title,
+			a.phone 
+		from
+			t_us_phone_info a 
+		order by
+			a.id
+	</select>
+	
+	
+	<update id="updatePwd" parameterType="pd">
+		update sys_user set password = #{newPwd} where user_id = #{user.USER_ID}
+	</update>
+	
+</mapper>

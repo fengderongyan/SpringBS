@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MyExamMapper">
+	
+	<select id="getMyExamList" parameterType="pd" resultType="pd">
+		select a.id,
+			   a.title,
+			   a.total_score,
+			   a.industry,
+			   a.time_num,
+			   a.question_count,
+			   b.dd_item_name industry_name,
+			   case when a.exam_type = 1 then '正式试卷' else '模拟试卷' end exam_type,
+			   a.record_id,
+			   a.record_role_lev,
+			   a.record_date,
+			   a.record_id &lt;=&gt; #{user.USER_ID} flag_edit,
+			   case when a.record_role_lev &gt;= #{user.role.ROLE_LEV} then 1 else 0 end flag_show_exam, 
+			   case when ifnull(length(c.exam_info_id), 0) = 0 then 0 else 1 end flag_answer 
+		  from t_exam_info a
+			   left join 
+			      (select exam_info_id from t_my_exam t where t.user_id = #{user.USER_ID}) c
+			  on a.id = c.exam_info_id,
+		  	   t_ddw b
+		 
+		 where a.status = 2
+		   and a.industry = b.dd_item_code
+		   and b.data_type_code = '1001'
+		<if test="user.role.ROLE_LEV == 0">
+			and 1 = 1
+		</if>
+		<if test="user.role.ROLE_LEV >= 3">
+			and  (IFNULL(LENGTH(a.county_id), 0) = 0 or a.county_id = #{user.organization.county_id})
+		</if>
+		<if test="user.role.ROLE_LEV >= 4">
+			and  (IFNULL(LENGTH(a.area_id), 0) = 0 or a.area_id = #{user.organization.area_id})
+		</if>
+		<if test="user.role.ROLE_LEV >= 5">
+			and (IFNULL(LENGTH(a.org_id), 0) = 0 or a.org_id = #{user.organization.org_id})
+			and (a.industry = '100100' or a.industry = #{user.organization.industry})
+		</if>
+		<!-- <if test="user.role.ROLE_LEV == 3">
+			and a.county_id = #{user.organization.county_id}
+		</if>
+		<if test="user.role.ROLE_LEV == 4">
+			and a.area_id = #{user.organization.area_id}
+		</if>
+		<if test="user.role.ROLE_LEV == 5">
+			and a.org_id = #{user.organization.org_id}
+		</if> -->
+		
+		<if test="title != null and title != '' ">
+			and a.title like concat('%', #{title}, '%')
+		</if>
+		<if test="exam_type != null and exam_type != '' ">
+			and a.exam_type = #{exam_type}
+		</if>
+		
+		order by a.record_date desc, title 
+	</select>
+	
+	<select id="getOrgListByOrgLev" parameterType="pd" resultType="pd">
+		select org_id, org_name from t_organization where status = 1 and org_lev = #{org_lev}
+		<if test="county_id != null and county_id != ''">
+			and county_id = #{county_id}
+		</if>
+		<if test="area_id != null and area_id != ''">
+			and area_id = #{area_id}
+		</if>
+		<if test="org_id != null and org_id != ''">
+			and org_id = #{org_id}
+		</if>
+		<if test="industry != null and industry != '' and industry != '100100'">
+			and industry = #{industry}
+		</if>
+	</select>
+	
+	<select id="getDzInfo" parameterType="pd" resultType="pd">
+		SELECT
+			count(1) cnt
+		FROM
+			t_question_info
+		WHERE
+			STATUS = 1
+		AND org_id = #{org_id}
+		AND type = '100301'
+		UNION ALL
+			SELECT
+				count(1) cnt
+			FROM
+				t_question_info
+			WHERE
+				STATUS = 1
+			AND org_id = #{org_id}
+			AND type = '100302'
+			UNION ALL
+				SELECT
+					count(1) cnt
+				FROM
+					t_question_info
+				WHERE
+					STATUS = 1
+				AND org_id = #{org_id}
+				AND type = '100303'
+	</select>
+	
+	<insert id="saveExam" parameterType="pd">
+		insert into t_exam_info
+		 (id,
+		  title,
+		  question_count,
+		  total_score,
+		  status,
+		  exam_type,
+		  industry,
+		  time_num,
+		  county_id,
+		  area_id,
+		  org_id,
+		  record_id,
+		  record_role_lev,
+		  record_date)
+		 values(#{id},
+		  #{title},
+		  #{question_count},
+		  #{total_score},
+		  #{status},
+		  #{exam_type},
+		  #{industry},
+		  #{time_num},
+		  #{county_id},
+		  #{area_id},
+		  #{org_id},
+		  #{record_id},
+		  #{record_role_lev},
+		  SYSDATE())
+	</insert>
+	
+	<insert id="batchSaveExam" parameterType="pd">
+		insert into t_exam_info
+		 (id,
+		  title,
+		  question_count,
+		  total_score,
+		  status,
+		  exam_type,
+		  industry,
+		  time_num,
+		  county_id,
+		  area_id,
+		  org_id,
+		  dz_danxuan,
+		  dz_duoxuan,
+		  dz_panduan,
+		  record_id,
+		  record_role_lev,
+		  record_date)
+		 values
+		 <foreach collection="list" item="pd" separator=",">
+			  (#{pd.id},
+			  #{pd.title},
+			  #{pd.question_count},
+			  #{pd.total_score},
+			  #{pd.status},
+			  #{pd.exam_type},
+			  #{pd.industry},
+			  #{pd.time_num},
+			  #{pd.county_id},
+			  #{pd.area_id},
+			  #{pd.org_id},
+			  #{pd.dz_danxuan},
+			  #{pd.dz_duoxuan},
+			  #{pd.dz_panduan},
+			  #{pd.record_id},
+			  #{pd.record_role_lev},
+			  SYSDATE())
+		 </foreach>
+	</insert>
+	
+	<select id="getExamMap" parameterType="pd" resultType="pd">
+		select id,
+			  title,
+			  question_count,
+			  total_score,
+			  status,
+			  exam_type,
+			  industry,
+			  time_num,
+			  county_id,
+			  fn_getorgname(county_id) county_name,
+			  area_id,
+			  fn_getorgname(area_id) area_name,
+			  org_id,
+			  fn_getorgname(org_id) org_name,
+			  dz_danxuan,
+			  dz_duoxuan,
+			  dz_panduan,
+			  record_id
+		 from t_exam_info a
+		where id = #{id}
+	</select>
+	
+	<update id="delExam" parameterType="pd">
+		update t_exam_info set status = 0 where id = #{id}
+	</update>
+	<select id="getExamQuestionCnt" parameterType="pd" resultType="pd">
+		select count(1) cnt from t_exam_question where exam_info_id = #{id}
+	</select>
+	<select id="getExamQuestionList" parameterType="pd" resultType="pd">
+		SELECT
+		    b.id,
+			b.question_info,
+			b.type,
+			case when type = '100301' then '单选' when type = '100302' then '多选' when type='100303' then '判断' end type_name,
+			b.optionA,
+			b.optionB,
+			b.optionC,
+			b.optionD,
+			b.optionE
+		FROM
+			t_exam_question a,
+			t_question_info b
+		WHERE
+			a.question_info_id = b.id
+		AND a.exam_info_id = #{id}
+	  order by a.seq_num
+	</select>
+	
+	<select id="getDzList" parameterType="pd" resultType="pd">
+		select id question_info_id from t_question_info where status = 1 and type = #{type} and org_id = #{org_id}
+		
+	</select>
+	
+	<select id="getCommonList" parameterType="pd" resultType="pd">
+	    select id question_info_id from t_question_info a 
+	     where status = 1 
+	       and type = #{type}
+
+	     <!-- 若该试卷指定了行业，那么只能从指定行业题库及公共题库中选题，若未指定行业则全部从公共题库中选题 -->
+	     <choose>
+	     	<when test="industry != null and industry != '' and industry != '100100'">
+	     		and (industry = #{industry} or industry = '100100')
+	     	</when>
+	     	<otherwise>
+	     		and industry = '100100'
+	     	</otherwise>
+	     </choose>
+	     <if test="county_id != null and county_id != ''">
+	     	and (county_id = #{county_id} or IFNULL(LENGTH(county_id), 0) = 0)
+	     </if>
+	     <if test="area_id != null and area_id != ''">
+	     	and (area_id = #{area_id} or IFNULL(LENGTH(area_id), 0) = 0)
+	     </if>
+	     <if test="(county_id == null or county_id == '') and (area_id == null or area_id == '')">
+	     	and IFNULL(LENGTH(county_id), 0) = 0
+	     	and IFNULL(LENGTH(area_id), 0) = 0
+	     </if>
+
+	</select>
+	
+	<insert id="batchSaveExamQuestion" parameterType="pd">
+		insert into t_exam_question
+		  (id, exam_info_id, question_info_id, status, seq_num)
+		 values
+		<foreach collection="list" item="pd" separator=",">
+			(#{pd.id}, #{pd.exam_info_id}, #{pd.question_info_id}, #{pd.status}, #{pd.seq_num})
+		</foreach>
+	</insert>
+	
+	<select id="getExamQuestionMap" parameterType="pd" resultType="pd">
+		SELECT
+		    b.id,
+			b.question_info,
+			b.type,
+			case when type = '100301' then '单选' when type = '100302' then '多选' when type='100303' then '判断' end type_name,
+			b.optionA,
+			b.optionB,
+			b.optionC,
+			b.optionD,
+			b.optionE,
+			b.answer,
+			a.seq_num
+		FROM
+			t_exam_question a,
+			t_question_info b
+		WHERE
+			a.question_info_id = b.id
+		AND a.exam_info_id = #{id}
+	    and a.seq_num = #{seq_num}
+	</select>
+
+	<insert id="saveMyAnswer" parameterType="pd">
+		insert into t_my_answer
+		   (id, 
+		   exam_info_id, 
+		   question_info_id, 
+		   my_answer, 
+		   answer, 
+		   status, 
+		   score, 
+		   my_score, 
+		   user_id, 
+		   record_date)
+		 values
+		   (#{id}, 
+		   #{exam_info_id}, 
+		   #{question_info_id}, 
+		   #{my_answer}, 
+		   #{answer}, 
+		   1, 
+		   #{score}, 
+		   #{my_score}, 
+		   #{user_id}, 
+		   SYSDATE())
+	</insert>
+	
+	<insert id="insertMyMxam" parameterType="pd">
+		insert into t_my_exam(id, user_id, exam_info_id, score, user_org_id, record_date)
+		  values(#{id}, #{user_id}, #{exam_info_id}, #{score}, #{org_id}, SYSDATE())
+	</insert>
+	
+	<select id="getTotalScore" parameterType="pd" resultType="pd">
+		select sum(my_score) total_score from t_my_answer where exam_info_id = #{exam_info_id} and user_id = #{user_id}
+	</select>
+	
+	<update id="updateMyExamScore" parameterType="pd">
+		update t_my_exam set score = #{score} where exam_info_id = #{exam_info_id} and user_id = #{user_id}
+	</update>
+	
+	<select id="showResult" parameterType="pd" resultType="pd">
+		SELECT
+		 	c.id,
+			c.question_info,
+			c.type,
+			CASE
+		WHEN c.type = '100301' THEN
+			'单选'
+		WHEN c.type = '100302' THEN
+			'多选'
+		WHEN c.type = '100303' THEN
+			'判断'
+		END type_name,
+		 c.optionA,
+		 c.optionB,
+		 c.optionC,
+		 c.optionD,
+		 c.optionE,
+		 c.answer,
+		 b.my_answer,
+		 b.my_score,
+		 case when c.answer = b.my_answer then '正确' else '错误' end flag_right
+		FROM
+			t_exam_question a
+		LEFT JOIN (
+			SELECT
+				my_answer,
+				exam_info_id,
+				question_info_id,
+				my_score
+			FROM
+				t_my_answer
+			WHERE
+				user_id = #{user_id}
+		) b ON a.exam_info_id = b.exam_info_id
+		AND a.question_info_id = b.question_info_id,
+		 t_question_info c
+		WHERE
+			a.question_info_id = c.id
+		AND a.exam_info_id = #{id}
+		order by a.seq_num
+	</select>
+	
+	<select id="getMyExamScore" parameterType="pd" resultType="pd">
+		select score from t_my_exam where user_id = #{user_id} and exam_info_id = #{id}
+	</select>
+</mapper>

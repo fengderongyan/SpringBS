@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="QuestionInfoMapper">
+	
+	<select id="getQuestionList" parameterType="pd" resultType="pd">
+		SELECT
+			a.id,
+			a.industry,
+			b.dd_item_name industry_name,
+			case when a.type = '100301' then '单选' when a.type = '100302' then '多选' when a.type = '100303' then '判断' end type,
+			a.source,
+			a.question_info,
+			c.username,
+			case when a.record_id = #{user.USER_ID} or #{user.USERNAME} = 'admin' then 1 else 0 end flag_edit
+		FROM
+			t_question_info a,
+			t_ddw b,
+			sys_user c
+		WHERE
+			a.industry = b.dd_item_code
+		AND b.data_type_code = '1001'
+		and a.record_id = c.user_id
+		and a.status = 1 
+	<choose>
+		<when test="user.role.ROLE_LEV == 0">
+			and 1 = 1 
+		</when>
+		<when test="user.role.ROLE_LEV >=3">
+			and (a.county_id = #{user.organization.county_id} or IFNULL(LENGTH(a.county_id),0) = 0)
+		</when>
+		<otherwise>
+			and 1 = 2 
+		</otherwise>
+	</choose>
+	<if test="industry != null and industry != '' and industry != '100100' ">
+		and industry = #{industry}
+	</if>
+		order by a.record_date desc 
+	</select>
+	
+	<select id="getOrgListByOrgLev" parameterType="pd" resultType="pd">
+		select org_id, org_name from t_organization where status = 1 and org_lev = #{org_lev}
+		<if test="county_id != null and county_id != ''">
+			and county_id = #{county_id}
+		</if>
+		<if test="area_id != null and area_id != ''">
+			and area_id = #{area_id}
+		</if>
+		<if test="org_id != null and org_id != ''">
+			and org_id = #{org_id}
+		</if>
+		<if test="industry != null and industry != '' and industry != '100100'">
+			and industry = #{industry}
+		</if>
+	</select>
+	
+	<insert id="saveQuestion" parameterType="pd">
+		insert into t_question_info
+		  (id,
+		  industry,
+		  source,
+		  type,
+		  question_info,
+		  status,
+		  optionA,
+		  optionB,
+		  optionC,
+		  optionD,
+		  optionE,
+		  answer,
+		  county_id,
+		  area_id,
+		  org_id,
+		  record_id,
+		  record_date)
+		 values
+		  (#{id},
+		  #{industry},
+		  #{source},
+		  #{type},
+		  #{question_info},
+		  #{status},
+		  #{optionA},
+		  #{optionB},
+		  #{optionC},
+		  #{optionD},
+		  #{optionE},
+		  #{answer},
+		  #{county_id},
+		  #{area_id},
+		  #{org_id},
+		  #{record_id},
+		  SYSDATE())
+	</insert>
+	
+	<select id="getQuestionMap" parameterType="pd" resultType="pd">
+		select id,
+		  industry,
+		  source,
+		  type,
+		  question_info,
+		  status,
+		  optionA,
+		  optionB,
+		  optionC,
+		  optionD,
+		  optionE,
+		  answer,
+		  county_id,
+		  area_id,
+		  org_id
+		from t_question_info
+	  where id = #{id}
+	</select>
+	
+	<update id="saveEdit" parameterType="pd">
+		update t_question_info 
+		   set industry = #{industry},
+		   	   source = #{source},
+		   	   type = #{type},
+		   	   question_info = #{question_info},
+		   	   optionA = #{optionA},
+		   	   optionB = #{optionB},
+		   	   optionC = #{optionC},
+		   	   optionD = #{optionD},
+		   	   optionE = #{optionE},
+		   	   answer = #{answer},
+		   	   county_id = #{county_id},
+		   	   area_id = #{area_id},
+		   	   org_id = #{org_id}
+		 where id = #{id}
+	</update>
+	
+	<update id="delQuestion" parameterType="pd">
+		update t_question_info set status = 0 where id = #{id}
+	</update>
+	
+	<update id="createTempTable" parameterType="pd">
+		create table ${v_table_name} ${table_columns}
+	</update>
+	
+	<insert id="insertTempTable" parameterType="pd">
+		insert into ${v_table_name} 
+		 values
+		<foreach collection="paramList" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</insert>
+	
+	<update id="updateTempTable" parameterType="pd">
+		${processSql}
+	</update>
+	
+	
+	
+	<select id="selectTempTable" parameterType="pd" resultType="pd">
+		select * from ${v_table_name}
+	</select>
+	
+	<update id="dropTempTable" parameterType="pd">
+		drop table ${v_table_name}
+	</update>
+	
+	<select id="getIndustryByOrgId" parameterType="pd" resultType="pd">
+		select industry from t_organization where org_id = #{org_id}
+	</select>
+</mapper>

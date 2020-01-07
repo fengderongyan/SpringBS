@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ExpertManageMapper">
+	
+	<select id="getExpertManageList" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.name,
+			(case a.sex when 1 then '男' when 2 then '女' end) sex,
+			a.photo,
+			a.introduce,
+			b.name rec_name,
+			a.rec_id,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date,
+			#{user.USER_ID} login_id,
+			a.rec_id &lt;=&gt; #{user.USER_ID} is_edit
+		from
+			t_expert_info a
+			left join sys_user b on a.rec_id = b.USER_ID 
+		where
+			1 = 1
+		<if test="name != null and name != ''">
+		 	and a.name like concat('%', #{name}, '%')
+		 </if>
+		order by a.order_num, a.rec_date desc
+	</select>
+	
+	<insert id="saveInformation" parameterType="pd">
+		insert into t_expert_info ( name, sex, introduce, content, photo, 
+		<if test="order_num != null and order_num != ''">
+			order_num, 
+		</if>
+		rec_id, rec_date )
+		values
+			( #{name}, #{sex}, #{introduction}, #{content}, #{photo}, 
+			<if test="order_num != null and order_num != ''">
+				#{order_num},
+			</if>
+			#{user.USER_ID}, SYSDATE( ) )
+	</insert>
+	
+	<select id="getInformationMap" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.name,
+			a.sex,
+			a.introduce,
+			a.content,
+			a.photo,
+			( case a.order_num when 1000 then null else a.order_num end) order_num 
+		from
+			t_expert_info a 
+		where
+			a.id = #{id}
+	</select>
+	
+	<update id="updateInformation" parameterType="pd" >
+		update t_expert_info a 
+		set a.name = #{name},
+			a.sex = #{sex},
+			a.introduce = #{introduction},
+			a.content = #{content},
+			a.photo = #{photo},
+			<choose>
+				<when test="order_num != null and order_num != ''">
+					a.order_num = #{order_num},
+				</when>
+				<otherwise>
+					a.order_num = 1000,
+				</otherwise>
+			</choose>	
+			a.update_id = #{user.USER_ID},
+			a.update_date = SYSDATE( ) 
+		where
+			a.id = #{info_id}
+	
+	</update>
+	
+	<insert id="saveInformationHis" parameterType="pd">
+		insert into t_expert_info_his ( id, name, sex, introduce, content, photo, order_num, rec_id, rec_date, update_id, update_date, del_id, del_date ) 
+		select
+			id,
+			name,
+			sex,
+			introduce,
+			content,
+			photo,
+			order_num,
+			rec_id,
+			rec_date,
+			update_id,
+			update_date,
+			#{user.USER_ID},
+			SYSDATE( )  
+		from
+			t_expert_info 
+		where
+			id = #{id};
+			
+		delete from t_expert_info where id = #{id}
+	</insert>
+</mapper>

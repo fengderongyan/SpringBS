@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PushInfoMapper">
+	
+	<insert id="saveLog" parameterType="pd">
+		insert into t_push_log_info ( title, content, extrakey, extrasparam,  user_id, rec_date )
+		values
+			( #{title}, #{content}, 'link', '', #{user_id}, SYSDATE( ) )
+	</insert>
+	
+	<select id="getMessageList" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.title,
+			a.content,
+			DATE_FORMAT( a.rec_date, '%Y-%m-%d' ) rec_date,
+			(case when #{user.USER_ID} = a.rec_id then 1 else 0 end ) is_edit
+		from
+			t_push_info a
+		where 1 = 1
+		<if test="title != null and title != ''">
+			and a.title like concat('%', #{title}, '%')
+		</if>
+		order by a.rec_date desc
+	</select>
+	
+	<insert id="saveInformation" parameterType="pd">
+		insert into t_push_info ( title, content, rec_id, rec_date )
+		values
+			( #{title}, #{content}, #{user.USER_ID}, SYSDATE( ) )
+	</insert>
+	
+	<select id="getMessageIDs" parameterType="pd" resultType="pd">
+		select
+			a.user_id,
+			a.registration_id 
+		from
+			sys_user a 
+		where
+			STATUS = 0
+	</select>
+	
+	
+	<insert id="saveInformationHis" parameterType="pd">
+		insert into t_push_info_his ( id, title, content, url, rec_id, rec_date, del_id, del_date ) 
+		select
+			id,
+			title,
+			content,
+			url,
+			rec_id,
+			rec_date,
+			#{user.USER_ID},
+			SYSDATE( ) 
+			from
+				t_push_info 
+			where
+				id = #{id};
+			
+		delete from t_push_info where id = #{id}
+	</insert>
+	
+</mapper>

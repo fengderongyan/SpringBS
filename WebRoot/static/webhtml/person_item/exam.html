@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<link rel="stylesheet" type="text/css" href="../css/swiper.min.css" />
+		<link rel="stylesheet" type="text/css" href="../js/theme/default/layer.css" />
+		<script src="../js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/swiper.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/layer.js" type="text/javascript" charset="utf-8"></script>
+		<title></title>
+	</head>
+	<body>
+		<div class="per_title">考题考试</div>
+		<div class="exam_list" id="exam_app">
+			<template v-for="(item,index) in exam_list">
+				<div class="exam_item justifyS">
+					<div class="exam_txt" id="test">{{item.title}}</div>
+					<button v-if='item.status==1' type="button" v-on:click='go_exam' class="right_btn">去考试</button>
+					<button v-if='item.status==0' type="button" class="finish_btn">已完成</button>
+				</div>
+			</template>
+
+		</div>
+		<script type="text/javascript">
+			var exam=new Vue({
+				el:'#exam_app',
+				data:{
+					exam_list:[
+						{title:'机械试题（1）',status:'1'},
+						{title:'机械试题（2）',status:'0'},
+						{title:'机械试题（3）',status:'1'},
+						{title:'机械试题（4）',status:'0'},
+						{title:'机械试题（5）',status:'1'}
+					]
+				},
+				methods:{
+					go_exam:function(){
+						console.log(11111)
+						var index=layer.open({
+				            type: 2,
+				            area: ['700px', '550PX'],//配置宽高
+				            shade:0.4, //遮罩透明度
+				            id:'addinfo-iframe',  //iframeID值
+				            title: '弹出框', //弹出框头部信息
+				            content: 'answer.html',  //打开的页面地址
+				            
+				            success:function (layero,index) {  
+								console.log(layero,index)
+								$('#person_center').append(layero[0];
+				            },
+				            yes:function(index){
+								
+				            },
+				            cancel:function(index,layero){//右上角关闭触发事件
+				            	
+				            },
+				            end:function(){//窗口关闭触发事件
+				            	
+				            }
+				            
+				        });
+						
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

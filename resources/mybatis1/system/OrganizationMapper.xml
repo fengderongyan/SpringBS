@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="OrganizationMapper">
+	
+	<select id="getOrgList" parameterType="pd" resultType="pd">
+		SELECT
+			a.org_id,
+			a.org_name,
+			a.status,
+			case when a.status = 1 then '有效' else '失效' end status_name,
+			fn_getorgname(a.p_org_id) p_org_name,
+			a.org_lev,
+			fn_getorgname(a.province_id) province_name,
+			fn_getorgname(a.city_id) city_name,
+			a.county_id,
+			fn_getorgname(a.county_id) county_name,
+			fn_getorgname(a.area_id) area_name,
+			fn_getddw('1001',industry) industry_name,
+			a.address,
+			a.phone,
+			a.org_detail,
+			fn_getusername(a.record_id) record_name,
+			case when (3 = #{role_lev} and county_id = #{org_id})
+				   or (4 = #{role_lev} and area_id = #{org_id})
+				   or (5 = #{role_lev} and org_id= #{org_id})
+				   or (0 = #{role_lev})
+			  then 1 else 0 end flag_edit,
+		  DATE_FORMAT(a.record_date,'%Y-%m-%d %H:%i:%s') record_date
+		FROM
+			t_organization a
+		 where a.status = 1
+		   and county_id is not null
+		 <choose>
+		 	<when test="role_lev == 0">
+		 		and 1 = 1
+		 	</when>
+		 	<when test="role_lev == 3">
+		 		and county_id = #{county_id}
+		 	</when>
+		 	<when test="role_lev == 4 and role_cha_all == 1 ">
+		 		and county_id = #{county_id}
+		 	</when>
+		 	<when test="role_lev == 4 and role_cha_all == 0 ">
+		 		and area_id = #{area_id}
+		 	</when>
+		 	<when test="role_lev == 5 and role_cha_all == 1 ">
+		 		and county_id = #{county_id}
+		 	</when>
+		 	<when test="role_lev == 5 and role_cha_all == 0 ">
+		 		and org_id = #{org_id}
+		 	</when>
+		 	<otherwise>
+		 		and 1 = 2
+		 	</otherwise>
+		 </choose>
+		 <if test="org_name != null and org_name != ''">
+		 	and org_name like concat('%', #{org_name}, '%')
+		 </if>
+		order by org_lev, record_date desc
+	</select>
+	
+	<select id="getCountyList" parameterType="pd" resultType="pd">
+		select org_id, org_name from t_organization where org_lev = 3 and status = 1
+		<choose>
+			<when test="user.role.ROLE_LEV == 0 ">
+				and 1 = 1
+			</when>
+			<otherwise>
+				and county_id = #{user.organization.county_id}
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getAddType" parameterType="pd" resultType="pd">
+		select dd_item_code, dd_item_name from t_ddw where data_type_code = '1002' and order_id > #{org_lev} order by order_id 
+	</select>
+	
+	<insert id="saveOrg" parameterType="pd">
+		INSERT INTO t_organization (
+			org_id,
+			org_name,
+			status,
+			p_org_id,
+			org_lev,
+			province_id,
+			city_id,
+			county_id,
+			area_id,
+			industry,
+			address,
+			phone,
+			is_limit,
+			limit_num,
+			org_detail,
+			record_id,
+			record_date
+		)
+		VALUES
+			(#{org_id}, 
+			#{org_name}, 
+			1,
+			#{p_org_id},
+			#{org_lev},
+			#{province_id},
+			#{city_id},
+			#{county_id},
+			#{area_id},
+			#{industry},
+			#{address},
+			#{phone},
+			#{is_limit},
+			#{limit_num},
+			#{org_detail},
+			#{record_id},
+		  SYSDATE())
+	</insert>
+	<select id="getOrgMap" parameterType="pd" resultType="pd">
+		select org_id,
+			org_name,
+			status,
+			p_org_id,
+			org_lev,
+			province_id,
+			city_id,
+			county_id,
+			fn_getorgname(county_id) county_name,
+			area_id,
+			fn_getorgname(area_id) area_name,
+			industry,
+			fn_getddw('1001',industry) industry_name,
+			address,
+			phone,
+			is_limit,
+			limit_num,
+			org_detail,
+			record_id,
+			record_date
+	   from t_organization where org_id = #{org_id}
+	</select>
+	<update id="saveEditOrg" parameterType="pd">
+		update t_organization 
+		  set org_id = #{org_id},
+			org_name  = #{org_name},
+			p_org_id  = #{p_org_id},
+			org_lev  = #{org_lev},
+			province_id = #{province_id},
+			city_id = #{city_id},
+			county_id = #{county_id},
+			area_id = #{area_id},
+			industry = #{industry},
+			address = #{address},
+			phone = #{phone},
+			is_limit = #{is_limit},
+			limit_num = #{limit_num},
+			org_detail = #{org_detail},
+			record_id = #{record_id},
+			record_date = SYSDATE()
+		where org_id = #{org_id}
+	</update>
+	
+	<update id="delOrg" parameterType="pd">
+		update t_organization set status = 0, record_id = ${record_id}, record_date = SYSDATE()  where org_id = #{org_id}
+	</update>
+	
+	<select id="getCildOrgList" parameterType="pd" resultType="pd">
+		select * from t_organization where p_org_id = #{org_id} and status = 1
+	</select>
+	
+	<select id="getIndustryList" resultType="pd">
+		select dd_item_code, dd_item_name from t_ddw where data_type_code = 1001 order by order_id
+	</select>
+	
+	<select id="getAreaListByCountyId" parameterType="pd" resultType="pd">
+		select org_id, org_name from t_organization 
+		 where county_id = #{county_id} 
+		   and org_lev = 4 
+		   and status = 1
+		<if test="user.role.ROLE_LEV == 4">
+			and area_id = #{user.organization.area_id}
+		</if>
+	</select>
+</mapper>

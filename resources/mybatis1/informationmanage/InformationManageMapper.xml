@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="InformationManageMapper">
+	
+	<select id="getInformationManageList" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.title,
+			a.introduction,
+			a.cover,
+			a.rec_id,
+			#{user.USER_ID} login_id,
+			a.rec_id &lt;=&gt; #{user.USER_ID} is_edit,
+			DATE_FORMAT(a.rec_date,'%Y-%m-%d') rec_date,
+			b.username
+		from
+			t_infomation_home_info a 
+			left join sys_user b on
+			a.rec_id = b.user_id
+		where
+			1 = 1
+		<if test="title != null and title != ''">
+		 	and a.title like concat('%', #{title}, '%')
+		 </if>
+		order by a.order_num, a.rec_date desc
+	</select>
+	
+	<insert id="saveInformation" parameterType="pd">
+		insert into t_infomation_home_info ( title, introduction, cover, content, 
+		<if test="order_num != null and order_num != ''">
+			order_num, 
+		</if>
+		rec_id, rec_date )
+		values
+			( #{title}, #{introduction}, #{cover}, #{content}, 
+		<if test="order_num != null and order_num != ''">
+			#{order_num}, 
+		</if>
+		#{user.USER_ID}, SYSDATE( ) )
+	</insert>
+	
+	<select id="getInformationMap" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.title,
+			a.introduction,
+			a.cover,
+			a.content,
+			DATE_FORMAT(a.rec_date,'%Y-%m-%d') rec_date,
+			(case a.order_num when 1000 then null else a.order_num end) order_num
+		from
+			t_infomation_home_info a 
+		where
+			a.id = #{id}
+	</select>
+	
+	<update id="updateInformation" parameterType="pd" >
+		update t_infomation_home_info a 
+		set a.title = #{title},
+			a.introduction = #{introduction},
+			a.cover = #{cover},
+			a.content = #{content},
+		<choose>
+			<when test="order_num != null and order_num != ''">
+				a.order_num = #{order_num},
+			</when>
+			<otherwise>
+				a.order_num = 1000,
+			</otherwise>
+		</choose>	
+			a.update_id = #{user.USER_ID},
+			a.update_date = SYSDATE()
+		where
+			a.id = #{info_id}
+	</update>
+	
+	<insert id="saveInformationHis" parameterType="pd">
+		insert into t_infomation_home_info_his ( id, title, introduction, cover, content, order_num, read_num, rec_id, rec_date, update_id, update_date, del_id, del_date ) select
+			id,
+			title,
+			introduction,
+			cover,
+			content,
+			order_num,
+			read_num,
+			rec_id,
+			rec_date,
+			update_id,
+			update_date,
+			#{user.USER_ID},
+			SYSDATE() 
+		from
+			t_infomation_home_info 
+		where
+			id = #{id};
+			
+		delete from t_infomation_home_info where id = #{id}
+	</insert>
+</mapper>

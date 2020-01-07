@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="TimingOperationMapper">
+ 	<delete id="delAll">
+ 		delete from t_his_of_today
+ 	</delete>
+	<insert id="saveResult">
+		insert into t_his_of_today
+			(bill_day, title, des, pic, record_date)
+		 values
+		<foreach collection="list" item="map" separator=",">
+			  (DATE_FORMAT(SYSDATE(),'%Y%m%d'),
+			   #{map.title},
+			   #{map.des},
+			   #{map.pic},
+			   SYSDATE())
+		 </foreach>
+	</insert>
+	
+	<select id="getHisOfTodayList" resultType="pd">
+		select * from (select des from t_his_of_today order by id desc) t limit 5
+	</select>
+	
+	
+	<select id="getThisWeek" resultType="pd">
+		select date_format(curdate(),'%w') week from dual
+	</select>
+	
+	<select id="getJpushInfos"  resultType="pd">
+		select
+			ifnull(c.registration_id, -1) registration_id,
+			b.points, b.user_id
+		from
+			sys_user c,
+			(
+			select
+				a.USER_ID,
+				sum( a.point ) points 
+			from
+				t_my_points a 
+			where
+				a.bill_day >= DATE_FORMAT( DATE_SUB( CURDATE( ), INTERVAL 6 DAY ), '%Y%m%d' ) 
+			GROUP BY
+				a.USER_ID 
+			) b 
+		where
+			c.user_id = b.USER_ID
+	</select>
+	
+	<select id="getJpushIds"  resultType="pd">
+		select
+			registration_id, a.user_id
+		from
+			sys_user a 
+		where
+			DATE_FORMAT( a.CERTIFICATE_END_DATE, '%Y-%m-%d' ) = DATE_SUB( CURDATE( ), INTERVAL - 6 DAY )
+	</select>
+	
+	<select id="getTodayJpushIds"  resultType="pd">
+		select
+			registration_id, a.user_id
+		from
+			sys_user a 
+		where
+			DATE_FORMAT( a.CERTIFICATE_END_DATE, '%Y-%m-%d' ) = DATE_FORMAT(SYSDATE(),'%Y-%m-%d')
+	</select>
+	
+	<select id="getNextJpushIds"  resultType="pd">
+		select
+			registration_id, a.user_id
+		from
+			sys_user a 
+		where
+			DATE_FORMAT( a.CERTIFICATE_END_DATE, '%Y-%m-%d' ) = DATE_SUB( CURDATE( ), INTERVAL  6 DAY )
+	</select>
+	
+	<delete id="delWeatherAll">
+ 		delete from t_weather_of_today
+ 	</delete>
+	<insert id="saveWeatherResult">
+		insert into t_weather_of_today
+			(content)
+		 values (#{content})
+	</insert>
+	
+	
+	<select id="getWeather" resultType="string">
+		select content from t_weather_of_today limit 1
+	</select>
+</mapper>

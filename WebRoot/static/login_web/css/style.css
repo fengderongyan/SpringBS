@@ -1,0 +1,80 @@
+@charset "gb2312";
+*{margin:0;padding:0;}
+body{font-size:12px;font-family:"Î¢ÈíÑÅºÚ",ËÎÌå,Arial, Helvetica, sans-serif; color:#4d4d4d; background:url(../images/body.png) repeat left top;}
+img{border:0;}
+ul{list-style:none;}
+li{ vertical-align:bottom;}
+a{color:#4d4d4d; text-decoration:none;}
+a:hover{ color:#e12537;}
+input:focus,textarea:focus {outline: none;}
+.clear{clear:both;}
+.blank{font-size:0; height:10px; width:100%;}
+.blank2{font-size:0; height:5px; width:100%;}
+.blank3{font-size:0; height:2px; width:100%;}
+.blank4{font-size:0; height:1px; width:100%;}
+
+
+
+.layout{ width:100%;}
+.tousu{ width:118px; height:60px; background:url(../images/tousujianyi.jpg) no-repeat left top; cursor:pointer; position:fixed; right:0; top:50%; margin-top:-30px; }
+.aside{ width:100%; height:100%; background:url(../images/aside.png) repeat left top; position:fixed; left:0; top:0; z-index:999; display:none;}
+.tsjy{ width:670px; height:324px; padding:60px; background:url(../images/tsjy-form.png) no-repeat left top; position:absolute; left:50%; top:50%; margin-top:-222px; margin-left:-345px;}
+.tsjy li{ width:670px; height:auto; float:left; margin-bottom:8px; display:inline; }
+.tsjy li h3{ width:86px; height:34px; line-height:34px; font-weight:normal; font-size:14px; overflow:hidden; float:left;}
+.tsjy li p{ width:230px; height:22px; padding:4px 10px; border:1px solid #e5e5e5; background:#FFF; float:left; }
+.tsjy li p input{ width:230px; height:22px; line-height:22px; border:0; color:#999; font-size:12px; font-family:"Î¢ÈíÑÅºÚ"; }
+.tsjy-file{ width:74px; height:70px; background:url(../images/tsjy-upfile.png) no-repeat left top; float:left; overflow:hidden;}
+.tsjy-textarea{width:584px; height:120px; float:left;}
+.tsjy-textarea textarea{ width:562px; height:98px; padding:10px; line-height:24px; font-size:12px; color:#999; font-family:"Î¢ÈíÑÅºÚ"; border:1px solid #DDD; resize:none; }
+.tsjy-file a{ width:74px; height:70px; display:block; }
+.tsjy-submit{ width:114px; height:40px; float:left; overflow:hidden;}
+.tsjy-submit input{ width:114px; height:40px;}
+
+.container{ margin:0 auto; background:url(../images/body.png) no-repeat center top; height:950px;}
+.header{ width:1080px; height:80px; margin:0 auto; padding-bottom:33px; padding-top:33px; }
+.logo{ width:610px; height:80px; float:left; overflow:hidden; }
+.logo img{width:610px; height:80px;}
+
+.main{ width:1200px; height:804px; margin:0 auto;}
+.left{ width:647px; height:618px; float:left; background:url(../images/left.png) no-repeat left top;}
+
+.forms{  width:607px; height:290px; margin:0 auto;}
+.forms-form{ width:607px; height:33px; overflow:hidden; }
+.forms-form h3,.forms-form p{ float:left;}
+.forms-form h3{ width:130px; height:33px; line-height:33px; font-weight:normal; font-size:14px; overflow:hidden; }
+.forms-form .form-input{ width:351px; height:23px; padding:5px 10px; margin:0 8px; background:#FFF;}
+.forms-form .form-input input{ width:351px; height:23px; line-height:23px; font-size:14px; color:#999; border:0;}
+.forms-form .form-submit,.forms-form .form-submit input{ width:90px; height:33px;}
+.forms-list{ width:607px; height:auto;}
+.forms-list li{ width:55px; height:52px; float:left; overflow:hidden; position:relative; margin-right:6px; margin-bottom:6px; cursor:pointer; }
+.forms-list li img{ width:55px; height:52px;}
+.forms-list li span{ width:20px; height:24px; display:block; position:absolute; right:0; top:0; display:none;}
+.forms-list li.fl-clear,.forms-list li.fl-back{ margin-right:0;}
+.forms-list li.fl-back,.forms-list li.fl-back img{ width:176px;}
+
+.erweima{ width:432px; height:156px; padding:10px; float:left; margin-left:20px; display:inline; background:#FFF; border:1px solid #ebebeb; position:relative;}
+.ewm-icon{ width:155px; height:154px; float:left; overflow:hidden; }
+.ewm-icon img{ width:155px; height:154px;}
+.ewm-about{ width:270px; height:154px; line-height:25px; font-size:14px; float:right; overflow:hidden;}
+.tishi{ width:296px; height:25px; position:absolute; right:-77px; top:110px;}
+.tishi p{ width:296px; height:25px; background:url(../images/tishi.png) no-repeat left top;}
+
+.help{ width:607px; height:90px; margin:0 auto; }
+.help-icon{ width:140px; height:90px; float:left; background:url(../images/help.png) no-repeat left top; overflow:hidden;}
+.help-cen{ width:440px; height:90px; float:right; overflow:hidden; }
+.help-cen h3,.help-cen p{ width:440px; height:32px; line-height:32px; font-weight:normal; font-size:16px; overflow:hidden; color:#fe9833;}
+.help-cen p{ height:48px; line-height:24px; font-size:14px; color:#3f3f3f;}
+
+.right{ width:535px; height:618px; float:right;}
+.news{ width:535px; height:292px; background:url(../images/right.png) no-repeat left top; overflow:hidden;}
+.news h2{ width:495px; height:40px; line-height:40px; background:url(../images/news-header.png) no-repeat left bottom; overflow:hidden; font-weight:normal; padding-left:20px; padding-right:20px; font-size:18px; overflow:hidden;}
+.news-list{ width:505px; height:200px; margin:0 auto; overflow:hidden;}
+.news-list li{ width:505px; height:40px; line-height:40px; font-size:14px; overflow:hidden; background:url(../images/news-list-li.gif) repeat-x left top;  }
+.news-list li span{ width:76px; height:40px; line-height:40px; display:block; float:right; overflow:hidden; color:#999; font-size:12px;}
+.btns{ width:535px; height:auto; }
+.btns a{ width:169px; height:68px; display:block; float:left; margin-right:14px; display:inline; }
+.btns a img{ width:169px; height:68px;}
+
+.copyright{ width:647px; height:auto; line-height:30px; font-size:14px; color:#FFF; text-align:center;}
+.copyright a{ color:#FFF;}
+.copyright a:hover{ color:#e12537;}

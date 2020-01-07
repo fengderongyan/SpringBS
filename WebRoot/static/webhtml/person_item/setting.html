@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<link rel="stylesheet" type="text/css" href="../css/swiper.min.css" />
+		<link rel="stylesheet" type="text/css" href="../js/theme/default/layer.css" />
+		<script src="../js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/swiper.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/layer.js" type="text/javascript" charset="utf-8"></script>
+		<title></title>
+	</head>
+	<body>
+		<div class="per_title">设置</div>
+		<div class="setting" id="app">
+			<div class="set_item justifyC" v-on:click="change_pwd">
+				<i class="iconfont icon-ziyuanxhdpi"></i>
+				<span>修改密码</span>
+			</div>
+			<div class="set_item justifyC" v-on:click="concat">
+				<i class="iconfont icon-002dianhua"></i>
+				<span>联系我们</span>
+			</div>
+			<a href="about_us.html" class="set_item justifyC">
+				<i class="iconfont icon-gerenzhongxin"></i>
+				<span>关于我们</span>
+			</a>
+			<div class="set_item justifyC" v-on:click="quit">
+				<i class="iconfont icon-tuichu4"></i>
+				<span>退出登录</span>
+			</div>
+			
+		</div>
+		<script type="text/javascript">
+			var set = new Vue({
+				el: '#app',
+				data: {
+
+				},
+				methods: {
+					concat:function(){
+						layer.open({
+							type: 1,
+							skin: 'layui-layer-demo', //样式类名
+							title:'联系电话',
+							closeBtn: 0, //不显示关闭按钮
+							anim: 2,
+							offset: '100px',
+							shadeClose: true, //开启遮罩关闭
+							content: `<div class="concat_us justifyC">
+				400-400-400
+			</div>`
+						});
+					},
+					
+					change_pwd: function() {
+						layer.open({
+							type: 1,
+							title: '修改手机号码',
+							area: ['520px', '300px'], //宽高
+							offset: '100px',
+							content: `
+							<div class="change_num">
+								<form method="post"  class='directionC'>
+									<div class="change_item justifyC">
+										<span>手机号</span>
+										<input type="" name="" id="" value="" />
+									</div>
+									<div class="change_item justifyC">
+										<span>新密码</span>
+										<input type="" name="" id="" value="" />
+									</div>
+									<div class="change_item justifyC">
+										<span>确认密码</span>
+										<input type=" " name="" id="" value="" />
+									</div>
+									<button type="submit" class="right_btn">确认提交</button>
+								</form>
+							</div>`
+						});
+					},
+
+					quit: function() {
+						layer.confirm('确定退出登陆吗？', {
+							btn: ['确定', '取消'] //按钮
+						}, function() {
+							console.log('退出登录')
+						}, function() {
+							console.log('取消退出')
+						});
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MoibleExamMapper">
+	
+	<select id="getExamInfoList" parameterType="pd" resultType="pd">
+		select a.id,
+			   a.title,
+			   a.time_num,
+			   case when ifnull(length(c.exam_info_id), 0) = 0 then 0 else 1 end flag_answer 
+		  from t_exam_info a
+			   left join 
+			      (select exam_info_id from t_my_exam t where t.user_id = #{user.USER_ID}) c
+			  on a.id = c.exam_info_id
+		 where a.status = 2
+		   and a.exam_type = #{exam_type}
+		<if test="user.org_lev == 0">
+			and 1 = 1
+		</if>
+		<if test="user.org_lev >= 3">
+			and  (IFNULL(LENGTH(a.county_id), 0) = 0 or a.county_id = #{user.county_id})
+		</if>
+		<if test="user.org_lev >= 4">
+			and  (IFNULL(LENGTH(a.area_id), 0) = 0 or a.area_id = #{user.area_id})
+		</if>
+		<if test="user.org_lev >= 5">
+			and (IFNULL(LENGTH(a.org_id), 0) = 0 or a.org_id = #{user.org_id})
+			and (a.industry = '100100' or a.industry = #{user.industry})
+		</if>
+			order by a.record_date desc, title 
+	</select>
+	
+	<select id="getExamInfoMap" parameterType="pd" resultType="pd">
+		select a.id,
+			   a.title,
+			   a.total_score,
+			   a.question_count,
+			   a.time_num
+		  from t_exam_info a 
+		 where a.id = #{id}
+	</select>
+	
+	<select id="getMyExamInfoMap" parameterType="pd" resultType="pd">
+		select score
+		  from t_my_exam a 
+		 where a.exam_info_id = #{id}
+		   and a.user_id = #{user.USER_ID}
+	</select>
+	
+	<select id="isHaveDailyExam" parameterType="pd" resultType="pd">
+		select count(1) cnt from t_daily_exam a where a.user_id = #{user.USER_ID} and a.bill_day = #{bill_day}
+	</select>
+	
+	<select id="getDailExamMap" parameterType="pd" resultType="pd">
+		SELECT
+			a.id,
+			a.seq_num,
+			b.question_info,
+			b.optionA,
+			b.optionB,
+			b.optionC,
+			b.optionD,
+			b.optionE,
+			b.answer,
+			b.type,
+			CASE
+		WHEN b.type = '100301' THEN
+			'单选'
+		WHEN b.type = '100302' THEN
+			'多选'
+		WHEN b.type = '100303' THEN
+			'判断'
+		end type_name
+		FROM
+			t_daily_exam a,
+			t_question_info b
+		WHERE
+			a.question_info_id = b.id
+		and b.status = 1
+		and a.bill_day = #{bill_day}
+		and a.user_id = #{user.USER_ID}
+		and a.seq_num = #{seq_num}
+	</select>
+	
+	<insert id="batchSaveDailyExam" parameterType="pd">
+		insert into t_daily_exam
+		  (id, bill_day, user_id, question_info_id, seq_num, record_date)
+		 values
+		<foreach collection="list" item="pd" separator=",">
+			(#{pd.id}, #{pd.bill_day}, #{pd.user_id}, #{pd.question_info_id}, #{pd.seq_num}, SYSDATE())
+		</foreach>
+	</insert>
+	
+	<select id="getOrgInfo" parameterType="string" resultType="pd">
+		select org_id, county_id, area_id, industry from t_organization where org_id = concat(#{org_id}, '') 
+	</select>
+	
+	<select id="getExamResult" parameterType="pd" resultType="pd">
+		SELECT
+			a.seq_num,
+		 	c.id,
+			c.question_info,
+			c.type,
+			CASE
+		WHEN c.type = '100301' THEN
+			'单选'
+		WHEN c.type = '100302' THEN
+			'多选'
+		WHEN c.type = '100303' THEN
+			'判断'
+		END type_name,
+		 c.optionA,
+		 c.optionB,
+		 c.optionC,
+		 c.optionD,
+		 c.optionE,
+		 c.answer,
+		 b.my_answer,
+		 b.my_score,
+		 case when c.answer = b.my_answer then '正确' else '错误' end flag_right
+		FROM
+			t_exam_question a
+		LEFT JOIN (
+			SELECT
+				my_answer,
+				exam_info_id,
+				question_info_id,
+				my_score
+			FROM
+				t_my_answer
+			WHERE
+				user_id = #{user_id}
+		) b ON a.exam_info_id = b.exam_info_id
+		AND a.question_info_id = b.question_info_id,
+		 t_question_info c
+		WHERE
+			a.question_info_id = c.id
+		AND a.exam_info_id = #{id}
+		order by a.seq_num
+	</select>
+	
+	<select id="getMyExamPoint" parameterType="pd" resultType="pd">
+		SELECT
+		  sum(point) total_point,
+		  sum(case when info_id = #{info_id} then 1 else 0 end) flag_exists
+		FROM
+			t_my_points
+		WHERE
+			bill_day &gt;= #{beginDate}
+		and bill_day &lt;= #{endDate}
+		AND user_id = #{user_id}
+		and type = #{type}
+	</select>
+	
+	<select id="getMyPoint" parameterType="pd" resultType="pd">
+		SELECT
+			sum(point) total_point,
+			type
+		FROM
+			t_my_points
+		WHERE
+			type IN (1, 2, 3, 4)
+		AND user_id = #{user_id}
+		AND bill_day = #{bill_day}
+		GROUP BY
+			type
+		UNION ALL
+		SELECT
+			sum(point) total_point,
+			type
+		FROM
+			t_my_points
+		WHERE
+			type IN (5, 6)
+		AND user_id = #{user_id}
+		AND bill_day &gt;= #{beginDate} 
+		AND bill_day &lt;= #{endDate}
+		GROUP BY
+			type
+		UNION ALL 
+		SELECT
+			sum(point) total_point,
+			'-1' type
+		FROM
+			t_my_points
+		WHERE user_id = #{user_id}
+		AND bill_day &gt;= #{beginDate} 
+		AND bill_day &lt;= #{endDate}
+	</select>
+	
+	<select id="getExamTypeById" parameterType="pd" resultType="string">
+		select concat(exam_type, '') from t_exam_info where id = #{id}
+	</select>
+	
+	<select id="getAreaStudyDay" parameterType="pd" resultType="string">
+		select distinct case when bill_week_num = #{bill_week_num} 
+		 			then '本周'
+				    else concat('第', bill_week_num, '周') end bill_week
+		  from t_chart_area_study a
+		 where substr(bill_day, 1, 4) = #{bill_year}
+		   and county_id = #{county_id}
+		   and bill_week_num >= #{bill_week_num} - 1
+		  order by a.bill_week_num
+	</select>
+	<select id="getAreaStudyArea" parameterType="pd" resultType="string">
+		select distinct concat(fn_getorgname(area_id), ',', area_id) area_name
+		  from t_chart_area_study a
+		 where substr(bill_day, 1, 4) = #{bill_year}
+		   and county_id = #{county_id}
+		   and bill_week_num >= #{bill_week_num} - 1
+		  order by a.area_id
+	</select>
+	<select id="getStudyCnt" parameterType="pd" resultType="string">
+		select sum(ifnull(study_cnt, 0)) from t_chart_area_study
+		  where substr(bill_day, 1, 4) = #{bill_year}
+		   and county_id = #{county_id}
+		   and bill_week_num >= #{bill_week_num} - 1
+		   and area_id = #{area_id}
+		   group by bill_week_num,bill_week_date
+		  order by bill_week_num
+	</select>
+</mapper>

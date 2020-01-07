@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="VideoManageMapper">
+	
+	<select id="getInformationManageList" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.title,
+			a.introduction,
+			a.cover,
+			a.expert_id,
+			a.video,
+			a.rec_id,
+			#{user.USER_ID} login_id,
+			a.rec_id &lt;=&gt; #{user.USER_ID} is_edit,
+			DATE_FORMAT(a.rec_date,'%Y-%m-%d') rec_date,
+			b.username,
+			c.title type_name
+		from
+			t_video_info a 
+			left join sys_user b on
+			a.rec_id = b.user_id
+			left join t_video_type_info c on
+			a.type = c.id
+		where
+			1 = 1
+		<if test="title != null and title != ''">
+		 	and a.title like concat('%', #{title}, '%')
+		 </if>
+		 <if test="type != null and type != ''">
+		 	and a.type = #{type}
+		 </if>
+		 
+		order by a.order_num, a.rec_date desc
+	</select>
+	
+	<select id="getVideoTypeList" parameterType="pd" resultType="pd">
+		select  a.id, a.title, a.video_type from t_video_type_info a order by a.order_num, a.rec_date desc
+	</select>
+	
+	<insert id="saveInformation" parameterType="pd">
+		insert into t_video_info ( type, title, cover, video, introduction, content, 
+		<if test="order_num != null and order_num != ''">
+			order_num, 
+		</if>
+		expert_id, rec_id, rec_date )
+		values
+			( #{type}, #{title}, #{cover}, #{video}, #{introduction}, #{content}, 
+			<if test="order_num != null and order_num != ''">
+				#{order_num}, 
+			</if>
+			#{expert_id}, #{user.USER_ID}, SYSDATE( ) )
+	</insert>
+	
+	<select id="getInformationMap" parameterType="pd" resultType="pd">
+		select
+			a.id,
+			a.type,
+			a.title,
+			cover,
+			a.video,
+			a.introduction,
+			a.content,
+			( case when a.order_num = 1000 then null else a.order_num end ) order_num,
+			a.expert_id,
+			b.name 
+		from
+			t_video_info a
+			left join t_expert_info b on a.expert_id = b.id 
+		where
+			a.id = #{id}
+	</select>
+	
+	<update id="updateInformation" parameterType="pd" >
+		update t_video_info a 
+			set a.type = #{type},
+				a.title = #{title},
+				a.cover = #{cover},
+				a.video = #{video},
+				a.introduction = #{introduction},
+				a.content = #{content},
+				<choose>
+					<when test="order_num != null and order_num != ''">
+						a.order_num = #{order_num},
+					</when>
+					<otherwise>
+						a.order_num = 1000,
+					</otherwise>
+				</choose>	
+				a.expert_id = #{expert_id},
+				a.update_id = #{user.USER_ID},
+				a.update_date = SYSDATE( ) 
+			where
+				a.id = #{info_id};
+				
+		update t_lesson_info a 
+		set a.expert_id = #{expert_id},
+		    a.video = #{video},
+		    a.video_name = #{title}
+		where
+			a.video_id = #{info_id}
+		
+	</update>
+	
+	<insert id="saveInformationHis" parameterType="pd">
+		insert into t_video_info_his (
+			id,
+			type,
+			item,
+			title,
+			cover,
+			video,
+			introduction,
+			content,
+			order_num,
+			expert_id,
+			rec_id,
+			rec_date,
+			update_id,
+			update_date,
+			del_id,
+			del_date 
+		) select
+				id,
+				type,
+				item,
+				title,
+				cover,
+				video,
+				introduction,
+				content,
+				order_num,
+				expert_id,
+				rec_id,
+				rec_date,
+				update_id,
+				update_date,
+				#{user.USER_ID},
+				SYSDATE( ) 
+		from
+			t_video_info 
+		where
+			id = #{id};
+		
+		delete from t_video_info where id = #{id}
+	</insert>
+</mapper>

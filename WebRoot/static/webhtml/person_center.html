@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/swiper.min.css" />
+		<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/swiper.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>个人中心</title>
+	</head>
+	<body>
+		<!-- 头部 -->
+		<div class="header">
+			<!-- 顶部banner -->
+			<div class="banner">
+				<img src="img/top.png">
+			</div>
+			<div class="tabbar justifyC">
+				<div class="tab_list justifyS">
+					<a class="tab_item">教学课程</a>
+					<a class="tab_item">安全常识</a>
+					<a class="tab_item">法律法规</a>
+					<a class="tab_item">政企快线</a>
+					<a class="tab_item">事故案例</a>
+				</div>
+				<div class="fun_btn ">
+					<button type="button">
+						<i class="iconfont icon-xiazai17"></i>
+						搜索
+					</button>
+					<button type="button">
+						用户登录
+					</button>
+				</div>
+			</div>
+		</div>
+		<!-- 头部 -->
+		
+		<!-- 个人中心部分 -->
+		<div class="person_content justify" id="person_center">
+			<div class="person_left direction">
+				<div class="person_ac directionA">
+					<img src="img/expert.jpg" >
+					<span>张无忌</span>
+				</div>
+				<ul class="per_tab">
+					<template v-for="(tab,index) in tab_list">
+						<li :class="nb==index?'per_active':''" v-on:click='click_tab(index)'>
+							<img :src="tab.src" >
+							<span>{{tab.txt}}</span>
+						</li>
+					</template>
+				</ul>
+			</div>
+			
+			
+			<div class="person_right" v-for="(item,index) in per_iframe">
+				<iframe class="per_iframe" :src="item.url" scrolling="no"  v-if="nb==index" frameborder="0"></iframe>
+			</div>
+		</div>
+		<!-- 个人中心部分 -->
+			
+		<!-- 尾部 -->
+		<div class="holder"></div>
+		<div class="footer">
+			<div class="footer_item">江苏沙光鱼软件有限公司</div>
+			<div class="footer_item">连云港在海一方论坛</div>
+			<div class="footer_item">联系电话：0518-81188805</div>
+			<div class="footer_item">公司地址：连云港市灌南县新安镇鹏程西路108号（灌南电子商务创业园）</div>
+		</div>
+		<!-- 尾部 -->
+		
+		<script type="text/javascript">
+			var person=new Vue({
+				el:'#person_center',
+				data:{
+					tab_list:[
+						{src:'img/per01.png',txt:'个人信息'},
+						{src:'img/per02.png',txt:'我的积分'},
+						{src:'img/per03.png',txt:'我的课程'},
+						{src:'img/per04.png',txt:'考试试题'},
+						{src:'img/per06.png',txt:'意见反馈'},
+						{src:'img/per07.png',txt:'荣誉证书'},
+						{src:'img/per08.png',txt:'系统设置'}
+					],
+					per_iframe:[
+						{url:'person_item/info.html'},
+						{url:'person_item/integral.html'},
+						{url:'person_item/curse.html'},
+						{url:'person_item/exam.html'},
+						{url:'person_item/suggestion.html'},
+						{url:'person_item/honor.html'},
+						{url:'person_item/setting.html'}
+					],
+					nb:''
+				},
+				methods:{
+					click_tab:function(index){
+						var that=this;
+						that.nb=index;
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

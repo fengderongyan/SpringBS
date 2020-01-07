@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SysUserMapper">
+	
+	<select id="getSysUserList" parameterType="pd" resultType="pd">
+		SELECT
+			a.user_id,
+			a.username,
+			a.password,
+			a.name,
+			a.role_id,
+		    b.role_name,
+		    b.role_lev,
+		    c.org_name,
+			a.org_id,
+			a.phone,
+			a.last_login,
+			a.ip,
+			a.status,
+			DATE_FORMAT(a.record_date,'%Y-%m-%d %H:%i:%s') record_date
+		FROM
+			sys_user a LEFT JOIN sys_role b on a.role_id = b.role_id
+					   LEFT JOIN t_organization c on a.org_id = c.org_id
+		where a.status = 0
+	<choose>
+		<when test="user.role.ROLE_LEV == 0">
+			and 1 =1 
+		</when>
+		<when test="user.role.ROLE_LEV == 3">
+			and c.county_id = #{user.organization.county_id} 
+		</when>
+		<when test="user.role.ROLE_LEV == 4">
+			and c.area_id = #{user.organization.area_id} 
+		</when>
+		<when test="user.role.ROLE_LEV == 5">
+			and a.org_id = #{user.organization.org_id} 
+		</when>
+		<otherwise>
+			and 1 = 2 
+		</otherwise>
+	</choose>
+	<if test="username != null and username != ''">
+		and username like concat('%', #{username}, '%')
+	</if>
+	<if test="name != null and name != ''">
+		and name like concat('%', #{name}, '%')
+	</if>	
+	<if test="phone != null and phone != ''">
+		and a.phone = #{phone}
+	</if>
+		order by b.role_lev, a.record_date desc
+	</select>
+	
+	<select id="getChildRole" parameterType="pd" resultType="pd">
+		select role_id, role_name from sys_role 
+		 where role_lev &gt; #{user.role.ROLE_LEV} 
+		   and role_lev &lt; 6
+		  order by role_lev
+	</select>
+	
+	<select id="getRoleLev" parameterType="pd" resultType="pd">
+		select role_lev from sys_role where role_id = #{role_id}
+	</select>
+	
+	<select id="loadOrgTree" parameterType="pd" resultType="pd">
+		select org_id, org_name, p_org_id, org_lev from t_organization
+		 where org_lev &lt;= #{role_lev}
+		   and org_lev not in(1, 2)
+		   and status = 1
+		 
+	</select>
+	
+	<insert id="saveUser" parameterType="pd">
+		insert into sys_user
+		   (user_id,
+		   username,
+		   password,
+		   name,
+		   role_id,
+		   org_id,
+		   status,
+		   phone,
+		   sex,
+		   head_img,
+		   station,
+		   is_need_certificate,
+		   certificate_num,
+		   certificate_name,
+		   certificate_begain_date,
+		   certificate_end_date,
+		   certificate_img_url,
+		   certificate_img_name,
+		   record_date)
+		 values
+		  (#{user_id},
+		  #{username},
+		  #{password},
+		  #{name},
+		  #{role_id},
+		  #{org_id},
+		  #{status},
+		  #{phone},
+		  #{sex},
+		  #{head_img},
+		  #{station},
+		  #{is_need_certificate},
+		  #{certificate_num},
+		  #{certificate_name},
+		  #{certificate_begain_date},
+		  #{certificate_end_date},
+		  #{certificate_img_url},
+		  #{certificate_img_name},
+		  SYSDATE())
+	</insert>
+	
+	<select id="checkUsername" parameterType="pd" resultType="pd">
+		select count(1) cnt from sys_user 
+		 where status = 0
+		   and username = #{username}
+		<if test="user_id != null and user_id != ''">
+			and user_id != #{user_id}
+		</if>
+	</select>
+	
+	<select id="checkPhone" parameterType="pd" resultType="pd">
+		select count(1) cnt from sys_user 
+		 where status = 0
+		   and phone = #{phone}
+		<if test="user_id != null and user_id != ''">
+			and user_id != #{user_id}
+		</if>
+	</select>
+	
+	<select id="getSysUserMap" parameterType="pd" resultType="pd">
+		select user_id,
+		   username,
+		   password,
+		   name,
+		   role_id,
+		   org_id,
+		   fn_getorgname(org_id) org_name,
+		   status,
+		   phone,
+		   sex,
+		   head_img,
+		   station,
+		   is_need_certificate,
+		   certificate_num,
+		   certificate_name,
+		   DATE_FORMAT(certificate_begain_date,'%Y-%m-%d') certificate_begain_date,
+		   DATE_FORMAT(certificate_end_date,'%Y-%m-%d') certificate_end_date,
+		   certificate_img_url,
+		   certificate_img_name,
+		   record_date
+	  from sys_user
+	 where user_id = #{user_id}
+	</select>
+	
+	<update id="saveEdit" parameterType="pd">
+		update sys_user 
+		   set username = #{username},
+		   	   name = #{name},
+		   	   role_id = #{role_id},
+		   	   org_id = #{org_id},
+		   	   phone = #{phone},
+		   	   sex = #{sex},
+		   	   station = #{station},
+		   	   is_need_certificate = #{is_need_certificate},
+		   	   certificate_num = #{certificate_num},
+		   	   certificate_end_date = #{certificate_end_date},
+		   	   certificate_img_url = #{certificate_img_url},
+		   	   certificate_img_name = #{certificate_img_name}
+		 where user_id = #{user_id}
+	</update>
+	
+	<select id="checkLimitNum" parameterType="pd" resultType="pd">
+		select IFNULL(is_limit, 0) is_limit, IFNULL(limit_num, 0) limit_num from t_organization where org_id = #{org_id}
+	</select>
+	
+	<select id="findUserCountByOrgId" parameterType="pd" resultType="pd">
+		select count(1) cnt from sys_user where status = 0 and org_id = #{org_id}
+	</select>
+	
+	<update id="createTempTable" parameterType="pd">
+		create table ${v_table_name} ${table_columns}
+	</update>
+	
+	<insert id="insertTempTable" parameterType="pd">
+		insert into ${v_table_name} 
+		 values
+		<foreach collection="paramList" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</insert>
+	
+	<update id="updateTempTable" parameterType="pd">
+		${processSql}
+	</update>
+	
+	
+	
+	<select id="selectTempTable" parameterType="pd" resultType="pd">
+		select * from ${v_table_name}
+	</select>
+	
+	<update id="dropTempTable" parameterType="pd">
+		drop table ${v_table_name}
+	</update>
+	
+	<update id="delUser" parameterType="pd">
+		update sys_user set status = 1 where user_id = #{user_id}
+	</update>
+	
+	<update id="resetPwd" parameterType="pd">
+		update sys_user set password = #{password} where user_id = #{user_id}
+	</update>
+	<update id="updatePwd" parameterType="pd">
+		update sys_user set password = #{password} where user_id = #{user_id}
+	</update>
+</mapper>

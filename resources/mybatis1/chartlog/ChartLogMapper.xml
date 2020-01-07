@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ChartLogMapper">
+ 
+	<select id="isLoginToday" parameterType="pd" resultType="pd">
+		select count(1) cnt from t_chart_login_log a 
+		 where DATE_FORMAT(a.login_date,'%Y%m%d') = DATE_FORMAT(SYSDATE(),'%Y%m%d')
+		   AND a.user_id = #{user.USER_ID}
+	</select>
+	
+	<select id="isGetLoingPoint" parameterType="pd" resultType="pd">
+		select count(1) cnt from t_my_points a where bill_day = DATE_FORMAT(SYSDATE(),'%Y%m%d')
+		   AND a.user_id = #{user_id}
+		   and a.type = 1
+	</select>
+	<insert id="saveLoingPoint" parameterType="pd">
+		insert into t_my_points ( id, user_id, org_id, type, point, info_id, bill_day, bill_week, record_date )
+		values
+			(
+				#{id},
+				#{user_id},
+				#{org_id},
+				#{type},
+				#{point},
+				#{info_id},
+				DATE_FORMAT( SYSDATE( ), '%Y%m%d' ),
+				date_format( curdate( ), '%w' ),
+				SYSDATE( ) 
+			)
+	</insert>
+	
+	<insert id="saveChartLogin" parameterType="pd">
+		insert into t_chart_login_log(id, bill_day,bill_hour, user_id, org_id, login_date, login_type)
+		 values(#{id}, #{bill_day}, #{bill_hour}, #{user_id}, #{org_id}, SYSDATE(), #{login_type})
+	</insert>
+	
+	<select id="getChartCountyLoginList" parameterType="pd" resultType="pd">
+		select concat(bill_hour, ':00') bill_hour, 
+			   concat(fn_getorgname(area_id), ',' , area_id) area_name, 
+			   org_cnt 
+		  from t_chart_county_login
+		 where bill_day = #{bill_day}
+		   and county_id = #{county_id}
+		  order by bill_hour, area_id
+	</select>
+	<select id="getChartCountyLoginHour" parameterType="pd" resultType="string">
+		select distinct concat(bill_hour, ':00') bill_hour
+		  from t_chart_county_login a
+		 where bill_day = #{bill_day}
+		   and county_id = #{county_id}
+		  order by a.bill_hour
+	</select>
+	<select id="getChartCountyLoginArea" parameterType="pd" resultType="string">
+		select distinct concat(fn_getorgname(area_id), ',', area_id) area_name
+		  from t_chart_county_login a
+		 where bill_day = #{bill_day}
+		   and county_id = #{county_id}
+		  order by a.area_id
+	</select>
+	<select id="getOrgCnt" parameterType="pd" resultType="string">
+		select ifnull(org_cnt, 0) from t_chart_county_login
+		  where bill_day = #{bill_day}
+		   and county_id = #{county_id}
+		   and area_id = #{area_id}
+		  order by bill_hour
+	</select>
+
+	<select id="getAreaStudyDay" parameterType="pd" resultType="string">
+		select distinct case when bill_week_num = #{bill_week_num} 
+		 			then concat('本周(', bill_week_date, ')')
+				    else concat('第', bill_week_num, '周(', bill_week_date, ')') end bill_week
+		  from t_chart_area_study a
+		 where substr(bill_day, 1, 4) = #{bill_year}
+		   and county_id = #{county_id}
+		   and bill_week_num >= #{bill_week_num} - 3
+		  order by a.bill_week_num
+	</select>
+	<select id="getAreaStudyArea" parameterType="pd" resultType="string">
+		select distinct concat(fn_getorgname(area_id), ',', area_id) area_name
+		  from t_chart_area_study a
+		 where substr(bill_day, 1, 4) = #{bill_year}
+		   and county_id = #{county_id}
+		   and bill_week_num >= #{bill_week_num} - 3
+		  order by a.area_id
+	</select>
+	<select id="getStudyCnt" parameterType="pd" resultType="string">
+		select sum(ifnull(study_cnt, 0)) from t_chart_area_study
+		  where substr(bill_day, 1, 4) = #{bill_year}
+		   and county_id = #{county_id}
+		   and area_id = #{area_id}
+		   and bill_week_num >= #{bill_week_num} - 3
+		   group by bill_week_num,bill_week_date
+		  order by bill_week_num
+	</select>
+	
+	
+	<select id="getSysUseList" parameterType="pd" resultType="pd">
+		select area_id, fn_getorgname(area_id) area_name,ifnull(use_cnt, 0) use_cnt 
+		  from t_chart_sys_use a
+		 where a.bill_day = #{bill_day} 
+		   and county_id = #{county_id}
+		  order by area_id 
+	</select>
+	
+	<select id="getHotInfoList" resultType="pd">
+		select id, title,  read_num from
+				(select * from (select id, title, read_num from t_infomation_accident_info order by read_num desc limit 0, 10) a
+				UNION all
+				select * from (select id, title, read_num from t_infomation_home_info order by read_num desc limit 0, 10) b
+				UNION all
+				select * from (select id, title, read_num from t_infomation_law_info order by read_num desc limit 0, 10) c
+				UNION all
+				select * from (select id, title, read_num from t_infomation_safe_info order by read_num desc limit 0, 10) d) t 
+		 order by read_num desc limit 0, 10
+	</select>
+	
+	<select id="getTableExamInfo" parameterType="pd" resultType="pd">
+		SELECT
+		  exam_type,
+		  count(1) exam_cnt,
+		  sum(case when IFNULL(user_id,0) = 0 then 0 else 1 end) exam_user_cnt
+		FROM
+			t_exam_info a
+		LEFT JOIN t_my_exam b
+		 ON b.exam_info_id = a.id
+		WHERE
+			a. STATUS = 2
+		<if test="user.role.ROLE_LEV >= 3">
+			and (a.county_id = #{user.organization.county_id} or IFNULL(LENGTH(a.county_id), 0) = 0)
+		</if>
+		GROUP BY
+			exam_type
+	</select>
+	
+	<select id="getMoNiExamRate" parameterType="pd" resultType="pd">
+		select pass_rate moni_pass_rate from t_chart_exam_moni where county_id = #{county_id}
+	</select>
+	
+	<select id="getZhengShiExamRate" parameterType="pd" resultType="pd">
+		select pass_rate zhengshi_pass_rate, join_rate from t_chart_exam_zhengshi where county_id = #{county_id}
+	</select>
+</mapper>

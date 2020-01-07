@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MobileLoginMapper">
+	
+	<select id="checkLoginResult" parameterType="pd" resultType="Integer">
+		select
+			count( 1 ) result
+		from
+			sys_user a 
+		where
+			a.USERNAME = #{username}
+		and a.PASSWORD = #{pwd}
+	</select>
+	
+	<insert id="saveInformation" parameterType="pd">
+		insert into t_infomation_law_info ( title, introduction, content, 
+		<if test="order_num != null and order_num != ''">
+			order_num, 
+		</if>
+		rec_id, rec_date )
+		values
+			( #{title}, #{introduction},  #{content}, 
+		<if test="order_num != null and order_num != ''">
+			#{order_num}, 
+		</if>
+		#{user.USER_ID}, SYSDATE( ) )
+	</insert>
+	
+	<update id="updateUserInfo" parameterType="pd" >
+		update sys_user a 
+		set a.registration_id = null 
+		where
+			a.registration_id = #{registrationId};
+			
+		update sys_user a 
+			set a.token = #{token},
+				  a.registration_id = #{registrationId}
+			where
+				a.USERNAME = #{username}
+	</update>
+	
+	<update id="updateResInfo" parameterType="pd" >
+		update sys_user a 
+		set a.registration_id = null 
+		where
+			a.registration_id = #{registrationId};
+			
+		update sys_user a 
+			set a.registration_id = #{registrationId}
+			where
+				a.USER_ID = #{userId}
+	</update>
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="WxUserMapper">
+	
+	
+	<select id="findByMoible" parameterType="pd" resultType="pd">
+		select count(1) cnt from t_wx_user where mobile = #{mobile}
+	</select>
+	<select id="findByMoibleAndOpenid" parameterType="pd" resultType="pd">
+		select count(1) cnt from t_wx_user where mobile = #{mobile} and openid is not null and openid != ''
+	</select>
+	
+	<update id="updateWxUserByMobile" parameterType="pd">
+		update t_wx_user set openid = #{openid} where mobile = #{mobile}
+	</update>
+	
+	<select id="findWxUserByOpenid" parameterType="pd" resultType="pd">
+		select openid, name, mobile, status from t_wx_user where openid = #{openid}
+	</select>
+</mapper>

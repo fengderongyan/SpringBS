@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DdwMapper">
+	
+	<select id="getDdwList" parameterType="pd" resultType="pd">
+		SELECT
+			id,
+			data_type_code,
+			data_type_name,
+			dd_item_code,
+			dd_item_name,
+			CASE
+		WHEN dd_lev = 1 THEN
+			'业务级别'
+		ELSE
+			'系统级别'
+		END dd_lev
+		FROM
+			t_ddw
+	 	where 1 = 1
+	 <if test="data_type_name != null and data_type_name !=''">
+	 	and data_type_name like CONCAT('%',#{data_type_name},'%')
+	 </if>
+		ORDER BY
+			data_type_code,
+			order_id
+	</select>
+	
+	<select id="getTypeList" resultType="pd">
+		select data_type_code, data_type_name from t_ddw
+	</select>
+	
+	<select id="getItemListByType" parameterType="pd" resultType="pd">
+		select dd_item_code, dd_item_name from t_ddw where data_type_code = #{data_type_code} order by dd_item_code
+	</select>
+	
+</mapper>

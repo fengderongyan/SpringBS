@@ -1,0 +1,107 @@
+@charset "gb2312";
+*{margin:0;padding:0;}
+/**body{font-size:12px;font-family:"Î¢ÈíÑÅºÚ",ËÎÌå,Arial, Helvetica, sans-serif; color:#4d4d4d; background:url(../images/body.png) repeat left top;}**/
+body{font-size:12px;font-family:"Î¢ÈíÑÅºÚ",ËÎÌå,Arial, Helvetica, sans-serif; color:#4d4d4d;}
+img{border:0;}
+ul{list-style:none;}
+li{ vertical-align:bottom;}
+a{color:#4d4d4d; text-decoration:none;}
+a:hover{ color:#e12537;}
+input:focus,textarea:focus {outline: none;}
+.clear{clear:both;}
+.blank{font-size:0; height:10px; width:100%;}
+.blank2{font-size:0; height:5px; width:100%;}
+.blank3{font-size:0; height:2px; width:100%;}
+.blank4{font-size:0; height:1px; width:100%;}
+
+
+
+.layout{ width:100%;}
+
+.container{ margin:0 auto; background:url(../images/wangyedenglu.jpg) no-repeat center top; height:1080px;}
+.header{ width:1000px; height:80px; margin:0 auto; padding-bottom:50px; padding-top:130px;}
+.logo{ width:400px; height:80px; display:block; margin:0 auto; overflow:hidden; }
+.logo img{width:400px; height:80px;}
+
+.main{ width:1000px; height:720px; margin:0 auto; }
+.regform{ width:652px; height:382px; background:url(../images/regform2.png) no-repeat left top; margin:0 auto; margin-top: 40px;}
+.regform-options{ width:360px; height:190px; margin:0 auto; background:url(../images/reg-options.png) no-repeat left top; margin:0 auto; }
+.regform-options li{ width:340px; height:28px; padding:10px; overflow:hidden;}
+.regform-options li p{ width:340px; height:22px; padding:3px 0; overflow:hidden;}
+.regform-options li p input{ width:340px; height:22px; line-height:22px; border:0; color:#999; font-family:"Î¢ÈíÑÅºÚ"; }
+.regform-options li.code p{ float:left;}
+.regform-options li.code p,.regform-options li.code p input{ width:246px;}
+.regform-options li.code h3{ width:84px; float:right; height:28px; overflow:hidden; }
+.regform-options li.code h3 a{width:84px; height:28px; display:block; line-height:28px; font-weight:normal; text-align:center; background:#e7e7e7; color:#a3a3a3; font-size:12px;}
+.regform-submit{ width:360px; height:50px; margin:0 auto; overflow:hidden; margin-left: }
+.regform-submit input{ width:360px; height:50px; border:0;}
+
+
+
+.loginform{ width:500px; height:342px; background:url(../images/managelog.png) no-repeat left top;margin-left:700px;  margin-top: 60px; }
+.loginform-options{ width:360px; height:109px; margin:0 auto; background:url(../images/login-options.png) no-repeat left top; margin:0 auto; margin-top: 70px;}
+.loginform-options li{ width:300px; height:28px; padding:10px; overflow:hidden;}
+.loginform-options li p{ width:300px; height:22px; padding:3px 0; overflow:hidden;}
+.loginform-options li p input{ width:300px; height:22px; line-height:22px; border:0; color:#999; font-family:"Î¢ÈíÑÅºÚ"; }
+.loginform-options li.code p{ float:left;}
+.loginform-options li.code p,.regform-options li.code p input{ width:246px;}
+.loginform-options li.code h3{ width:84px; float:right; height:28px; overflow:hidden; }
+.loginform-options li.code h3 a{width:84px; height:28px; display:block; line-height:28px; font-weight:normal; text-align:center; background:#e7e7e7; color:#a3a3a3; font-size:12px;}
+.loginform-submit{ width:360px; height:50px; padding-top:20px;margin:0 auto; overflow:hidden;}
+.loginform-submit input{ width:180px; height:50px; border:0;}
+.loginform .update-psw{ width:340px;text-align:right;color:#666666; font-size:14px;line-height:30px;margin:0 auto; }
+.loginform .update-psw a{ color:#3db2f4;}
+.loginform .update-psw .cb{ background:url(../images/ico4.png) no-repeat left center; padding-left:18px; background-size:16px 16px;float:left}
+.loginform .update-psw .cb_active{ background:url(../images/ico3.png) no-repeat left center;  background-size:16px 16px;float:left}
+.loginform .btn{height:40px;line-height:40px;width:360px;font-size:14px;color: #3db2f4; border:none;display:block; margin:0 auto; text-align:right;}
+.loginform .btn a{color: #3db2f4;}
+
+
+.container1{ margin:0 auto; background:url(../images/wangyedenglu1.jpg) no-repeat center top; height:1080px;}
+
+.loginform1{ width:500px; height:342px; background:url(../images/qiyegeren.png) no-repeat left top;margin-left:700px;  margin-top: 60px; }
+.loginform1-options{ width:360px; height:109px; margin:0 auto; background:url(../images/login-options.png) no-repeat left top; margin:0 auto; margin-top: 70px;}
+.loginform1-options li{ width:300px; height:28px; padding:10px; overflow:hidden;}
+.loginform1-options li p{ width:300px; height:22px; padding:3px 0; overflow:hidden;}
+.loginform1-options li p input{ width:300px; height:22px; line-height:22px; border:0; color:#999; font-family:"Î¢ÈíÑÅºÚ"; }
+.loginform1-options li.code p{ float:left;}
+.loginform1-options li.code p,.regform-options li.code p input{ width:246px;}
+.loginform1-options li.code h3{ width:84px; float:right; height:28px; overflow:hidden; }
+.loginform1-options li.code h3 a{width:84px; height:28px; display:block; line-height:28px; font-weight:normal; text-align:center; background:#e7e7e7; color:#a3a3a3; font-size:12px;}
+.loginform1-submit{ width:360px; height:50px; padding-top:20px;margin:0 auto; overflow:hidden;}
+.loginform1-submit input{ width:180px; height:50px; border:0;}
+.loginform1 .update-psw{ width:340px;text-align:right;color:#666666; font-size:14px;line-height:30px;margin:0 auto; }
+.loginform1 .update-psw a{ color:#3db2f4;}
+.loginform1 .update-psw .cb{ background:url(../images/ico4.png) no-repeat left center; padding-left:18px; background-size:16px 16px;float:left}
+.loginform1 .update-psw .cb_active{ background:url(../images/ico3.png) no-repeat left center;  background-size:16px 16px;float:left}
+.loginform1 .btn{height:40px;line-height:40px;width:360px;font-size:14px;color: #3db2f4; border:none;display:block; margin:0 auto; text-align:right;}
+.loginform1 .btn a{color: #3db2f4;}
+
+
+
+
+
+.container2{ margin:0 auto; background:url(../images/wangyedenglu2.jpg) no-repeat center top; height:1080px;}
+.loginform2{ width:500px; height:342px; background:url(../images/zhengfugeren.png) no-repeat left top;margin-left:700px;  margin-top: 60px; }
+.loginform2-options{ width:360px; height:109px; margin:0 auto; background:url(../images/login-options.png) no-repeat left top; margin:0 auto; margin-top: 70px;}
+.loginform2-options li{ width:300px; height:28px; padding:10px; overflow:hidden;}
+.loginform2-options li p{ width:300px; height:22px; padding:3px 0; overflow:hidden;}
+.loginform2-options li p input{ width:300px; height:22px; line-height:22px; border:0; color:#999; font-family:"Î¢ÈíÑÅºÚ"; }
+.loginform2-options li.code p{ float:left;}
+.loginform2-options li.code p,.regform-options li.code p input{ width:246px;}
+.loginform2-options li.code h3{ width:84px; float:right; height:28px; overflow:hidden; }
+.loginform2-options li.code h3 a{width:84px; height:28px; display:block; line-height:28px; font-weight:normal; text-align:center; background:#e7e7e7; color:#a3a3a3; font-size:12px;}
+.loginform2-submit{ width:360px; height:50px; padding-top:20px;margin:0 auto; overflow:hidden;}
+.loginform2-submit input{ width:180px; height:50px; border:0;}
+.loginform2 .update-psw{ width:340px;text-align:right;color:#666666; font-size:14px;line-height:30px;margin:0 auto; }
+.loginform2 .update-psw a{ color:#3db2f4;}
+.loginform2 .update-psw .cb{ background:url(../images/ico4.png) no-repeat left center; padding-left:18px; background-size:16px 16px;float:left}
+.loginform2 .update-psw .cb_active{ background:url(../images/ico3.png) no-repeat left center;  background-size:16px 16px;float:left}
+.loginform2 .btn{height:40px;line-height:40px;width:360px;font-size:14px;color: #3db2f4; border:none;display:block; margin:0 auto; text-align:right;}
+.loginform2 .btn a{color: #3db2f4;}
+
+
+
+
+.copyright{ width:1000px; height:auto; line-height:30px; font-size:14px; text-align:center; margin:0 auto; text-align:center;}
+.copyright a:hover{ color:#e12537;}
